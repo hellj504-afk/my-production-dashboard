@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { 
   collection, 
@@ -39,7 +38,6 @@ export default function PrioritiesPage({ user, username }) {
 
   const fetchData = async () => {
     try {
-      // Fetch plans
       const plansSnapshot = await getDocs(collection(db, 'productionPlans'));
       const plansData = [];
       plansSnapshot.forEach((doc) => {
@@ -47,7 +45,6 @@ export default function PrioritiesPage({ user, username }) {
       });
       setPlans(plansData);
 
-      // Fetch shortages
       const shortagesSnapshot = await getDocs(collection(db, 'shortages'));
       const shortagesData = [];
       shortagesSnapshot.forEach((doc) => {
@@ -55,7 +52,6 @@ export default function PrioritiesPage({ user, username }) {
       });
       setShortages(shortagesData);
 
-      // Fetch priorities
       const prioritiesQuery = query(
         collection(db, 'priorities'),
         orderBy('createdAt', 'desc')
@@ -113,7 +109,6 @@ export default function PrioritiesPage({ user, username }) {
 
   const handleDelete = async (priorityId) => {
     if (!confirm('Are you sure you want to delete this priority?')) return;
-    
     try {
       await deleteDoc(doc(db, 'priorities', priorityId));
       toast.success('Priority deleted successfully!');
@@ -137,15 +132,6 @@ export default function PrioritiesPage({ user, username }) {
       status: priority.status || 'pending'
     });
     setShowModal(true);
-  };
-
-  const getPriorityColor = (level) => {
-    switch(level) {
-      case 'high': return 'bg-red-500';
-      case 'medium': return 'bg-yellow-500';
-      case 'low': return 'bg-green-500';
-      default: return 'bg-gray-500';
-    }
   };
 
   const getPriorityBorder = (level) => {
@@ -190,7 +176,6 @@ export default function PrioritiesPage({ user, username }) {
     return <div className="text-white text-center py-20">Loading...</div>;
   }
 
-  // Group priorities by level
   const groupedPriorities = {
     high: priorities.filter(p => p.priorityLevel === 'high'),
     medium: priorities.filter(p => p.priorityLevel === 'medium'),
@@ -199,7 +184,6 @@ export default function PrioritiesPage({ user, username }) {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-3xl font-bold text-white">🎯 Priority Board</h1>
@@ -230,7 +214,6 @@ export default function PrioritiesPage({ user, username }) {
         </ProtectedComponent>
       </div>
 
-      {/* Kanban Board */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {['high', 'medium', 'low'].map((level) => (
           <div key={level} className="bg-card rounded-lg p-4 shadow-lg">
