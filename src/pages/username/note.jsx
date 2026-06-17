@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { 
   collection, 
@@ -8,12 +7,11 @@ import {
   deleteDoc, 
   doc,
   query,
-  orderBy,
-  where
+  orderBy
 } from 'firebase/firestore';
 import { db } from '../../firebase/config';
 import ProtectedComponent from '../../components/common/ProtectedComponent';
-import { Plus, X, Edit, Trash2, Pin, PinOff, Clock, User } from 'lucide-react';
+import { Plus, X, Edit, Trash2, Pin, Clock, User } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 export default function LiveNotesPage({ user, username }) {
@@ -88,7 +86,6 @@ export default function LiveNotesPage({ user, username }) {
 
   const handleDelete = async (noteId) => {
     if (!confirm('Are you sure you want to delete this note?')) return;
-    
     try {
       await deleteDoc(doc(db, 'liveNotes', noteId));
       toast.success('Note deleted successfully!');
@@ -110,15 +107,12 @@ export default function LiveNotesPage({ user, username }) {
   };
 
   const canEditNote = (note) => {
-    // Super admin can edit any note
     if (user.role === 'super_admin') return true;
-    // Production planner can edit their own notes
     if (user.role === 'production_planner' && note.author === username) return true;
     return false;
   };
 
   const canDeleteNote = (note) => {
-    // Only super admin can delete notes
     return user.role === 'super_admin';
   };
 
@@ -131,7 +125,6 @@ export default function LiveNotesPage({ user, username }) {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-3xl font-bold text-white">📝 Live Notes</h1>
@@ -153,7 +146,6 @@ export default function LiveNotesPage({ user, username }) {
         </ProtectedComponent>
       </div>
 
-      {/* Pinned Notes */}
       {pinnedNotes.length > 0 && (
         <div>
           <h2 className="text-xl font-semibold text-yellow-400 flex items-center gap-2 mb-4">
@@ -170,7 +162,6 @@ export default function LiveNotesPage({ user, username }) {
         </div>
       )}
 
-      {/* All Notes */}
       <div>
         <h2 className="text-xl font-semibold text-white mb-4">
           All Notes
@@ -266,9 +257,7 @@ export default function LiveNotesPage({ user, username }) {
     </div>
   );
 
-  // Helper function to render note content
   function renderNoteContent(note) {
-    const isAuthor = note.author === username;
     const canEdit = canEditNote(note);
     const canDelete = canDeleteNote(note);
 
@@ -296,9 +285,6 @@ export default function LiveNotesPage({ user, username }) {
                   <Pin size={12} />
                   Pinned
                 </span>
-              )}
-              {isAuthor && (
-                <span className="text-xs bg-blue-600 px-2 py-0.5 rounded">Your note</span>
               )}
             </div>
           </div>
