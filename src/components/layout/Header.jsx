@@ -1,4 +1,3 @@
-
 import { Bell, User } from 'lucide-react';
 
 export default function Header({ user, username }) {
@@ -14,18 +13,15 @@ export default function Header({ user, username }) {
       </div>
       
       <div className="flex items-center gap-6">
-        {/* Live indicator */}
         <div className="flex items-center gap-2">
           <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
           <span className="text-xs text-gray-400">Live</span>
         </div>
         
-        {/* Notifications */}
         <button className="text-gray-400 hover:text-white transition-colors">
           <Bell size={20} />
         </button>
         
-        {/* User info */}
         <div className="flex items-center gap-3">
           <div className="text-right">
             <p className="text-sm font-semibold text-white">{user.displayName}</p>
