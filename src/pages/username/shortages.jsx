@@ -4,9 +4,7 @@ import {
   getDocs, 
   addDoc, 
   updateDoc, 
-  doc,
-  query,
-  where
+  doc
 } from 'firebase/firestore';
 import { db } from '../../firebase/config';
 import ProtectedComponent from '../../components/common/ProtectedComponent';
@@ -121,7 +119,6 @@ export default function ShortagesPage({ user, username }) {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-3xl font-bold text-white">⚠️ Shortages</h1>
@@ -167,7 +164,6 @@ export default function ShortagesPage({ user, username }) {
         </button>
       </div>
 
-      {/* Shortages List */}
       <div className="space-y-4">
         {filteredShortages.length === 0 ? (
           <div className="bg-card rounded-lg p-8 text-center">
