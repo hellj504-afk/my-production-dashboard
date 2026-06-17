@@ -1,4 +1,3 @@
-
 export default function ProductGrid({ products }) {
   const productColors = {
     'HT CT': 'border-blue-500',
