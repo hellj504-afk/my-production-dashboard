@@ -198,4 +198,207 @@ export default function UserManagementPage({ user, username }) {
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">User</th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Role</th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Shift</th>
-              <th className="px-6 py-3 text-left
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Status</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Actions</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-gray-700">
+            {users.length === 0 ? (
+              <tr>
+                <td colSpan="5" className="px-6 py-8 text-center text-gray-400">
+                  No users found. Add your first user!
+                </td>
+              </tr>
+            ) : (
+              users.map((userData) => (
+                <tr key={userData.id} className="hover:bg-gray-800/50 transition-colors">
+                  <td className="px-6 py-4">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-full bg-gray-700 flex items-center justify-center">
+                        <User size={18} className="text-gray-300" />
+                      </div>
+                      <div>
+                        <p className="text-white font-medium">{userData.name}</p>
+                        <p className="text-xs text-gray-400">{userData.email}</p>
+                        {userData.employeeId && (
+                          <p className="text-xs text-gray-500">ID: {userData.employeeId}</p>
+                        )}
+                      </div>
+                    </div>
+                  </td>
+                  <td className="px-6 py-4">
+                    <span className={`text-xs px-3 py-1 rounded-full ${getRoleColor(userData.role)}`}>
+                      {getRoleLabel(userData.role)}
+                    </span>
+                  </td>
+                  <td className="px-6 py-4">
+                    {userData.shift ? (
+                      <span className="text-xs bg-yellow-600 px-3 py-1 rounded-full capitalize">
+                        {userData.shift}
+                      </span>
+                    ) : (
+                      <span className="text-xs text-gray-500">N/A</span>
+                    )}
+                  </td>
+                  <td className="px-6 py-4">
+                    <span className={`text-xs px-3 py-1 rounded-full ${
+                      userData.isActive !== false ? 'bg-green-600' : 'bg-red-600'
+                    }`}>
+                      {userData.isActive !== false ? '🟢 Active' : '🔴 Inactive'}
+                    </span>
+                  </td>
+                  <td className="px-6 py-4">
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => handleEdit(userData)}
+                        className="bg-yellow-600 hover:bg-yellow-700 p-1.5 rounded text-white transition-colors"
+                      >
+                        <Edit size={16} />
+                      </button>
+                      <button
+                        onClick={() => toggleUserStatus(userData.id, userData.isActive !== false)}
+                        className={`p-1.5 rounded text-white transition-colors ${
+                          userData.isActive !== false 
+                            ? 'bg-red-600 hover:bg-red-700' 
+                            : 'bg-green-600 hover:bg-green-700'
+                        }`}
+                      >
+                        {userData.isActive !== false ? <X size={16} /> : <Check size={16} />}
+                      </button>
+                      <button
+                        onClick={() => handleDelete(userData.id)}
+                        className="bg-red-600 hover:bg-red-700 p-1.5 rounded text-white transition-colors"
+                      >
+                        <Trash2 size={16} />
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))
+            )}
+          </tbody>
+        </table>
+      </div>
+
+      {/* Modal */}
+      {showModal && (
+        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
+          <div className="bg-card rounded-lg p-6 max-w-md w-full max-h-[90vh] overflow-y-auto">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-2xl font-bold text-white">
+                {editingUser ? 'Edit User' : 'Add User'}
+              </h2>
+              <button
+                onClick={() => setShowModal(false)}
+                className="text-gray-400 hover:text-white transition-colors"
+              >
+                <X size={24} />
+              </button>
+            </div>
+            
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div>
+                <label className="block text-sm text-gray-400 mb-1">Full Name *</label>
+                <input
+                  type="text"
+                  value={formData.name}
+                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                  className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-accent"
+                  required
+                  placeholder="Enter full name"
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm text-gray-400 mb-1">Email *</label>
+                <input
+                  type="email"
+                  value={formData.email}
+                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                  className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-accent"
+                  required
+                  placeholder="Enter email address"
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm text-gray-400 mb-1">Role *</label>
+                <select
+                  value={formData.role}
+                  onChange={(e) => setFormData({ ...formData, role: e.target.value })}
+                  className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-accent"
+                  required
+                >
+                  {roleOptions.map(option => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              
+              <div>
+                <label className="block text-sm text-gray-400 mb-1">Employee ID</label>
+                <input
+                  type="text"
+                  value={formData.employeeId}
+                  onChange={(e) => setFormData({ ...formData, employeeId: e.target.value })}
+                  className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-accent"
+                  placeholder="EMP001"
+                />
+              </div>
+              
+              {formData.role === 'floor_supervisor' && (
+                <div>
+                  <label className="block text-sm text-gray-400 mb-1">Shift</label>
+                  <select
+                    value={formData.shift}
+                    onChange={(e) => setFormData({ ...formData, shift: e.target.value })}
+                    className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-accent"
+                    required
+                  >
+                    <option value="">Select Shift</option>
+                    {shiftOptions.map(shift => (
+                      <option key={shift} value={shift} className="capitalize">
+                        {shift}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
+              
+              <div className="flex items-center gap-3">
+                <input
+                  type="checkbox"
+                  checked={formData.isActive}
+                  onChange={(e) => setFormData({ ...formData, isActive: e.target.checked })}
+                  className="w-4 h-4 accent-accent"
+                  id="userActive"
+                />
+                <label htmlFor="userActive" className="text-white text-sm">
+                  Active User
+                </label>
+              </div>
+              
+              <div className="flex gap-3 pt-2">
+                <button
+                  type="submit"
+                  className="flex-1 bg-accent hover:bg-blue-700 py-2 rounded-lg text-white font-semibold transition-colors"
+                >
+                  {editingUser ? 'Update User' : 'Add User'}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setShowModal(false)}
+                  className="flex-1 bg-gray-700 hover:bg-gray-600 py-2 rounded-lg text-white font-semibold transition-colors"
+                >
+                  Cancel
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
