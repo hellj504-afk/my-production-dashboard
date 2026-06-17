@@ -17,7 +17,6 @@ import toast from 'react-hot-toast';
 
 // ==================== PRODUCTION PLANS ====================
 
-// Get all plans
 export const getPlans = async () => {
   try {
     const querySnapshot = await getDocs(collection(db, 'productionPlans'));
@@ -33,7 +32,6 @@ export const getPlans = async () => {
   }
 };
 
-// Get single plan
 export const getPlanById = async (planId) => {
   try {
     const docRef = doc(db, 'productionPlans', planId);
@@ -48,7 +46,6 @@ export const getPlanById = async (planId) => {
   }
 };
 
-// Create plan
 export const createPlan = async (planData) => {
   try {
     const docRef = await addDoc(collection(db, 'productionPlans'), {
@@ -66,7 +63,6 @@ export const createPlan = async (planData) => {
   }
 };
 
-// Update plan
 export const updatePlan = async (planId, planData) => {
   try {
     await updateDoc(doc(db, 'productionPlans', planId), {
@@ -82,7 +78,6 @@ export const updatePlan = async (planId, planData) => {
   }
 };
 
-// Delete plan
 export const deletePlan = async (planId) => {
   try {
     await deleteDoc(doc(db, 'productionPlans', planId));
@@ -97,7 +92,6 @@ export const deletePlan = async (planId) => {
 
 // ==================== DAILY PRODUCTION ====================
 
-// Get daily production entries
 export const getDailyProduction = async (date = null) => {
   try {
     let q = collection(db, 'dailyProduction');
@@ -127,7 +121,6 @@ export const getDailyProduction = async (date = null) => {
   }
 };
 
-// Log daily production
 export const logDailyProduction = async (entryData) => {
   try {
     const docRef = await addDoc(collection(db, 'dailyProduction'), {
@@ -135,7 +128,6 @@ export const logDailyProduction = async (entryData) => {
       loggedAt: new Date().toISOString()
     });
     
-    // Update plan's achieved quantity
     const planRef = doc(db, 'productionPlans', entryData.planId);
     const planDoc = await getDoc(planRef);
     if (planDoc.exists()) {
@@ -146,7 +138,6 @@ export const logDailyProduction = async (entryData) => {
         lastUpdated: new Date().toISOString()
       });
       
-      // Check for shortage
       if (newAchieved < plan.targetQuantity) {
         await checkAndCreateShortage(entryData.planId, plan.productName, plan.targetQuantity, newAchieved);
       }
@@ -163,10 +154,8 @@ export const logDailyProduction = async (entryData) => {
 
 // ==================== SHORTAGES ====================
 
-// Check and create shortage if needed
 const checkAndCreateShortage = async (planId, productName, required, available) => {
   try {
-    // Check if shortage already exists
     const q = query(
       collection(db, 'shortages'),
       where('planId', '==', planId),
@@ -175,7 +164,6 @@ const checkAndCreateShortage = async (planId, productName, required, available) 
     const snapshot = await getDocs(q);
     
     if (snapshot.empty && available < required) {
-      // Create new shortage
       await addDoc(collection(db, 'shortages'), {
         planId,
         materialName: productName,
@@ -195,7 +183,6 @@ const checkAndCreateShortage = async (planId, productName, required, available) 
   }
 };
 
-// Get all shortages
 export const getShortages = async (status = null) => {
   try {
     let q = collection(db, 'shortages');
@@ -214,7 +201,6 @@ export const getShortages = async (status = null) => {
   }
 };
 
-// Resolve shortage
 export const resolveShortage = async (shortageId, resolutionNotes = '') => {
   try {
     await updateDoc(doc(db, 'shortages', shortageId), {
@@ -234,7 +220,6 @@ export const resolveShortage = async (shortageId, resolutionNotes = '') => {
 
 // ==================== PRIORITIES ====================
 
-// Get all priorities
 export const getPriorities = async (level = null) => {
   try {
     let q = collection(db, 'priorities');
@@ -253,7 +238,6 @@ export const getPriorities = async (level = null) => {
   }
 };
 
-// Create priority
 export const createPriority = async (priorityData) => {
   try {
     const docRef = await addDoc(collection(db, 'priorities'), {
@@ -270,7 +254,6 @@ export const createPriority = async (priorityData) => {
   }
 };
 
-// Update priority
 export const updatePriority = async (priorityId, priorityData) => {
   try {
     await updateDoc(doc(db, 'priorities', priorityId), {
@@ -286,7 +269,6 @@ export const updatePriority = async (priorityId, priorityData) => {
   }
 };
 
-// Delete priority
 export const deletePriority = async (priorityId) => {
   try {
     await deleteDoc(doc(db, 'priorities', priorityId));
@@ -301,7 +283,6 @@ export const deletePriority = async (priorityId) => {
 
 // ==================== LIVE NOTES ====================
 
-// Get all notes
 export const getNotes = async () => {
   try {
     const q = query(
@@ -321,7 +302,6 @@ export const getNotes = async () => {
   }
 };
 
-// Create note
 export const createNote = async (noteData) => {
   try {
     const docRef = await addDoc(collection(db, 'liveNotes'), {
@@ -337,7 +317,6 @@ export const createNote = async (noteData) => {
   }
 };
 
-// Update note
 export const updateNote = async (noteId, noteData) => {
   try {
     await updateDoc(doc(db, 'liveNotes', noteId), {
@@ -353,7 +332,6 @@ export const updateNote = async (noteId, noteData) => {
   }
 };
 
-// Delete note
 export const deleteNote = async (noteId) => {
   try {
     await deleteDoc(doc(db, 'liveNotes', noteId));
@@ -368,7 +346,6 @@ export const deleteNote = async (noteId) => {
 
 // ==================== USERS ====================
 
-// Get all users
 export const getUsers = async () => {
   try {
     const querySnapshot = await getDocs(collection(db, 'users'));
@@ -383,7 +360,6 @@ export const getUsers = async () => {
   }
 };
 
-// Create user
 export const createUser = async (userData) => {
   try {
     const docRef = await addDoc(collection(db, 'users'), {
@@ -400,7 +376,6 @@ export const createUser = async (userData) => {
   }
 };
 
-// Update user
 export const updateUser = async (userId, userData) => {
   try {
     await updateDoc(doc(db, 'users', userId), {
@@ -416,7 +391,6 @@ export const updateUser = async (userId, userData) => {
   }
 };
 
-// Delete user
 export const deleteUser = async (userId) => {
   try {
     await deleteDoc(doc(db, 'users', userId));
@@ -431,7 +405,6 @@ export const deleteUser = async (userId) => {
 
 // ==================== AUDIT LOG ====================
 
-// Log action
 export const logAction = async (userId, action, targetType, targetId, changes = {}) => {
   try {
     await addDoc(collection(db, 'auditLog'), {
@@ -447,7 +420,6 @@ export const logAction = async (userId, action, targetType, targetId, changes = 
   }
 };
 
-// Get audit log
 export const getAuditLog = async (limitCount = 50) => {
   try {
     const q = query(
@@ -469,7 +441,6 @@ export const getAuditLog = async (limitCount = 50) => {
 
 // ==================== REAL-TIME SUBSCRIPTIONS ====================
 
-// Subscribe to real-time updates
 export const subscribeToCollection = (collectionName, callback, conditions = []) => {
   let q = collection(db, collectionName);
   
@@ -479,7 +450,6 @@ export const subscribeToCollection = (collectionName, callback, conditions = [])
     });
   }
   
-  // Add order by for timestamp fields
   if (collectionName === 'liveNotes') {
     q = query(q, orderBy('isPinned', 'desc'), orderBy('createdAt', 'desc'));
   }
@@ -498,46 +468,29 @@ export const subscribeToCollection = (collectionName, callback, conditions = [])
   return unsubscribe;
 };
 
-// ==================== EXPORT ALL ====================
-
 export default {
-  // Plans
   getPlans,
   getPlanById,
   createPlan,
   updatePlan,
   deletePlan,
-  
-  // Daily Production
   getDailyProduction,
   logDailyProduction,
-  
-  // Shortages
   getShortages,
   resolveShortage,
-  
-  // Priorities
   getPriorities,
   createPriority,
   updatePriority,
   deletePriority,
-  
-  // Notes
   getNotes,
   createNote,
   updateNote,
   deleteNote,
-  
-  // Users
   getUsers,
   createUser,
   updateUser,
   deleteUser,
-  
-  // Audit
   logAction,
   getAuditLog,
-  
-  // Realtime
   subscribeToCollection
 };
