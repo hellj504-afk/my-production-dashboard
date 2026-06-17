@@ -323,3 +323,53 @@ export default function ShortagesPage({ user, username }) {
                   value={formData.requiredQuantity}
                   onChange={(e) => setFormData({ ...formData, requiredQuantity: e.target.value })}
                   className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-accent"
+                  required
+                  min="1"
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm text-gray-400 mb-1">Available Quantity</label>
+                <input
+                  type="number"
+                  value={formData.availableQuantity}
+                  onChange={(e) => setFormData({ ...formData, availableQuantity: e.target.value })}
+                  className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-accent"
+                  required
+                  min="0"
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm text-gray-400 mb-1">Assigned To</label>
+                <input
+                  type="text"
+                  value={formData.assignedTo}
+                  onChange={(e) => setFormData({ ...formData, assignedTo: e.target.value })}
+                  className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-accent"
+                  placeholder="Who is working on this?"
+                />
+              </div>
+              
+              <div className="flex gap-3 pt-2">
+                <button
+                  type="submit"
+                  className="flex-1 bg-red-600 hover:bg-red-700 py-2 rounded-lg text-white font-semibold transition-colors"
+                >
+                  Report Shortage
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setShowModal(false)}
+                  className="flex-1 bg-gray-700 hover:bg-gray-600 py-2 rounded-lg text-white font-semibold transition-colors"
+                >
+                  Cancel
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
