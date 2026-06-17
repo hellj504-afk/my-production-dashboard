@@ -1,4 +1,3 @@
-
 import { useRouter } from 'next/router';
 import { getUserByUsername, DEFAULT_USER } from '../config/users';
 import Header from '../components/layout/Header';
