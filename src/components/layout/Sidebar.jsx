@@ -1,4 +1,3 @@
-
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { 
@@ -8,8 +7,7 @@ import {
   AlertTriangle, 
   Flag,
   StickyNote,
-  Users,
-  Settings
+  Users
 } from 'lucide-react';
 
 export default function Sidebar({ user, username }) {
@@ -67,7 +65,6 @@ export default function Sidebar({ user, username }) {
 
   return (
     <aside className="fixed left-0 top-16 h-full w-64 bg-secondary border-r border-gray-700 overflow-y-auto">
-      {/* User Info */}
       <div className="p-4 border-b border-gray-700">
         <p className="text-xs text-gray-400">Logged in as:</p>
         <p className="text-white font-semibold">{user.displayName}</p>
@@ -88,7 +85,6 @@ export default function Sidebar({ user, username }) {
         </div>
       </div>
       
-      {/* Navigation */}
       <nav className="p-4 space-y-1">
         {visibleItems.map((item) => {
           const Icon = item.icon;
@@ -112,7 +108,6 @@ export default function Sidebar({ user, username }) {
         })}
       </nav>
       
-      {/* Quick User Switch */}
       <div className="absolute bottom-0 w-full p-4 border-t border-gray-700 bg-secondary">
         <p className="text-xs text-gray-500 mb-2">Quick Switch:</p>
         <div className="flex flex-wrap gap-1">
