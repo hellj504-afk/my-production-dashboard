@@ -11,7 +11,7 @@ import {
 } from 'firebase/firestore';
 import { db } from '../../firebase/config';
 import ProtectedComponent from '../../components/common/ProtectedComponent';
-import { Plus, Check, X, Clock } from 'lucide-react';
+import { Plus, Check, X } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 export default function DailyProductionPage({ user, username }) {
