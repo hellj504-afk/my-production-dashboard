@@ -9,7 +9,7 @@ import {
 } from 'firebase/firestore';
 import { db } from '../../firebase/config';
 import ProtectedComponent from '../../components/common/ProtectedComponent';
-import { Plus, Edit, Trash2, X, Check } from 'lucide-react';
+import { Plus, Edit, Trash2, X } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 export default function ProductionPlansPage({ user, username }) {
@@ -25,13 +25,8 @@ export default function ProductionPlansPage({ user, username }) {
   });
 
   const productOptions = [
-    'HT CT',
-    'PT', 
-    'Bushing CT',
-    'INSULATOR',
-    'KE VCB Bushing',
-    'LTCT ITR-WLT',
-    'EARTHING SWITCH'
+    'HT CT', 'PT', 'Bushing CT', 'INSULATOR',
+    'KE VCB Bushing', 'LTCT ITR-WLT', 'EARTHING SWITCH'
   ];
 
   useEffect(() => {
@@ -67,11 +62,9 @@ export default function ProductionPlansPage({ user, username }) {
       };
 
       if (editingPlan) {
-        // Update existing plan
         await updateDoc(doc(db, 'productionPlans', editingPlan.id), planData);
         toast.success('Plan updated successfully!');
       } else {
-        // Add new plan
         await addDoc(collection(db, 'productionPlans'), planData);
         toast.success('Plan created successfully!');
       }
@@ -88,7 +81,6 @@ export default function ProductionPlansPage({ user, username }) {
 
   const handleDelete = async (planId) => {
     if (!confirm('Are you sure you want to delete this plan?')) return;
-    
     try {
       await deleteDoc(doc(db, 'productionPlans', planId));
       toast.success('Plan deleted successfully!');
@@ -125,7 +117,6 @@ export default function ProductionPlansPage({ user, username }) {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-3xl font-bold text-white">📋 Production Plans</h1>
@@ -147,7 +138,6 @@ export default function ProductionPlansPage({ user, username }) {
         </ProtectedComponent>
       </div>
 
-      {/* Plans List */}
       <div className="grid grid-cols-1 gap-4">
         {plans.length === 0 ? (
           <div className="bg-card rounded-lg p-8 text-center">
