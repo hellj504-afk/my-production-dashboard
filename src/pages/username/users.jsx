@@ -5,13 +5,10 @@ import {
   addDoc, 
   updateDoc, 
   deleteDoc, 
-  doc,
-  query,
-  where
+  doc
 } from 'firebase/firestore';
 import { db } from '../../firebase/config';
-import ProtectedComponent from '../../components/common/ProtectedComponent';
-import { Plus, X, Edit, Trash2, Shield, User, Clock, Check, AlertCircle } from 'lucide-react';
+import { Plus, X, Edit, Trash2, User, Check, AlertCircle } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 export default function UserManagementPage({ user, username }) {
@@ -29,10 +26,10 @@ export default function UserManagementPage({ user, username }) {
   });
 
   const roleOptions = [
-    { value: 'super_admin', label: '👑 Super Admin', color: 'purple' },
-    { value: 'production_planner', label: '📋 Production Planner', color: 'blue' },
-    { value: 'floor_supervisor', label: '🏭 Floor Supervisor', color: 'green' },
-    { value: 'viewer', label: '👀 Viewer', color: 'gray' }
+    { value: 'super_admin', label: '👑 Super Admin' },
+    { value: 'production_planner', label: '📋 Production Planner' },
+    { value: 'floor_supervisor', label: '🏭 Floor Supervisor' },
+    { value: 'viewer', label: '👀 Viewer' }
   ];
 
   const shiftOptions = ['morning', 'evening', 'night'];
@@ -94,7 +91,6 @@ export default function UserManagementPage({ user, username }) {
 
   const handleDelete = async (userId) => {
     if (!confirm('Are you sure you want to delete this user?')) return;
-    
     try {
       await deleteDoc(doc(db, 'users', userId));
       toast.success('User deleted successfully!');
@@ -150,7 +146,6 @@ export default function UserManagementPage({ user, username }) {
     return <div className="text-white text-center py-20">Loading...</div>;
   }
 
-  // Only Super Admin can access this page
   if (user.role !== 'super_admin') {
     return (
       <div className="bg-red-900/20 border border-red-500 rounded-lg p-8 text-center">
@@ -163,7 +158,6 @@ export default function UserManagementPage({ user, username }) {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-3xl font-bold text-white">👥 User Management</h1>
@@ -190,7 +184,6 @@ export default function UserManagementPage({ user, username }) {
         </button>
       </div>
 
-      {/* Users Table */}
       <div className="bg-card rounded-lg shadow-lg overflow-x-auto">
         <table className="w-full">
           <thead className="bg-gray-800">
