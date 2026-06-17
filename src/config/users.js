@@ -33,7 +33,7 @@ export const USER_CONFIG = {
     }
   },
 
-  // 📋 PRODUCTION PLANNER - 1 Person
+  // 📋 PRODUCTION PLANNER
   usman: {
     id: "usman",
     name: "Usman Ahmed",
@@ -67,7 +67,7 @@ export const USER_CONFIG = {
     }
   },
 
-  // 🏭 FLOOR SUPERVISOR 1 - Morning Shift
+  // 🏭 FLOOR SUPERVISOR 1
   rizwan: {
     id: "rizwan",
     name: "Rizwan Ali",
@@ -102,7 +102,7 @@ export const USER_CONFIG = {
     }
   },
 
-  // 🏭 FLOOR SUPERVISOR 2 - Evening Shift
+  // 🏭 FLOOR SUPERVISOR 2
   ahmed: {
     id: "ahmed",
     name: "Ahmed Hassan",
@@ -137,7 +137,7 @@ export const USER_CONFIG = {
     }
   },
 
-  // 👀 VIEWER - Read Only
+  // 👀 VIEWER
   guest: {
     id: "guest",
     name: "Guest User",
@@ -172,12 +172,10 @@ export const USER_CONFIG = {
   }
 };
 
-// Get user by username
 export const getUserByUsername = (username) => {
   return USER_CONFIG[username] || USER_CONFIG.guest;
 };
 
-// Check if user has specific permission
 export const hasPermission = (username, permission) => {
   const user = getUserByUsername(username);
   return user?.permissions?.[permission] || false;
