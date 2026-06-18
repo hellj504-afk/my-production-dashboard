@@ -4,7 +4,6 @@ import { doc, getDoc } from 'firebase/firestore';
 import { db } from '../firebase/config';
 import { DEFAULT_USER, USER_CONFIG } from '../config/users';
 import Header from '../components/layout/Header';
-import Sidebar from '../components/layout/Sidebar';
 import '../styles/globals.css';
 
 function MyApp({ Component, pageProps }) {
@@ -12,7 +11,6 @@ function MyApp({ Component, pageProps }) {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   
-  // Get username from URL
   const username = router.query.username || DEFAULT_USER;
 
   useEffect(() => {
@@ -20,31 +18,22 @@ function MyApp({ Component, pageProps }) {
       try {
         setLoading(true);
         
-        // 1. Pehle Firestore se user fetch karein
+        // Firestore se user fetch karein
         const userDoc = await getDoc(doc(db, 'users', username));
         
         if (userDoc.exists()) {
-          // Firestore mein user mil gaya
           const userData = userDoc.data();
           setUser({
             id: username,
             ...userData,
-            // Permissions Firestore se lein
             permissions: userData.permissions || USER_CONFIG[username]?.permissions || USER_CONFIG.guest.permissions
           });
         } else {
-          // 2. Agar Firestore mein nahi hai toh config se check karein
-          const configUser = USER_CONFIG[username];
-          if (configUser) {
-            setUser(configUser);
-          } else {
-            // 3. Default guest user
-            setUser(USER_CONFIG.guest);
-          }
+          // Agar Firestore mein nahi toh config se lein
+          setUser(USER_CONFIG[username] || USER_CONFIG.guest);
         }
       } catch (error) {
         console.error('Error fetching user:', error);
-        // Error mein bhi guest user show karein
         setUser(USER_CONFIG.guest);
       } finally {
         setLoading(false);
@@ -56,7 +45,6 @@ function MyApp({ Component, pageProps }) {
     }
   }, [username]);
 
-  // Agar loading ho raha hai toh spinner dikhayein
   if (loading) {
     return (
       <div className="min-h-screen bg-primary flex items-center justify-center">
@@ -68,7 +56,6 @@ function MyApp({ Component, pageProps }) {
     );
   }
 
-  // Agar user nahi mila toh guest user use karein
   const currentUser = user || USER_CONFIG.guest;
 
   return (
