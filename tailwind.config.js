@@ -1,4 +1,3 @@
-
 /** @type {import('tailwindcss').Config} */
 module.exports = {
   content: [
@@ -9,12 +8,20 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        primary: '#1a1a2e',
-        secondary: '#16213e',
-        accent: '#0f3460',
-        highlight: '#e94560',
-        card: '#1f2937',
-      }
+        primary: '#0a0a1a',
+        secondary: '#0d0d2b',
+        accent: '#1a0a2e',
+        cyan: {
+          400: '#22d3ee',
+          500: '#06b6d4',
+        },
+        emerald: {
+          400: '#34d399',
+        },
+        rose: {
+          400: '#fb7185',
+        },
+      },
     },
   },
   plugins: [],
