@@ -1,17 +1,7 @@
 import { useState, useEffect } from 'react';
-import { 
-  collection, 
-  getDocs, 
-  addDoc, 
-  updateDoc, 
-  doc,
-  query,
-  where,
-  orderBy
-} from 'firebase/firestore';
+import { collection, getDocs, addDoc, updateDoc, doc, query, where, orderBy } from 'firebase/firestore';
 import { db } from '../../firebase/config';
-import ProtectedComponent from '../../components/common/ProtectedComponent';
-import { Plus, Check, X, Package } from 'lucide-react';
+import { Plus, Check, X, Clock } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 export default function DailyProductionPage({ user, username }) {
@@ -19,19 +9,25 @@ export default function DailyProductionPage({ user, username }) {
   const [entries, setEntries] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
-  const [showAddProduct, setShowAddProduct] = useState(false);
-  const [newProduct, setNewProduct] = useState({
-    productName: '',
-    targetQuantity: '',
-  });
   const [formData, setFormData] = useState({
     planId: '',
     achievedQuantity: '',
     shift: 'morning',
-    operator: '',
-    machineUsed: '',
+    overtime: 'none',
     notes: ''
   });
+
+  const shiftOptions = [
+    { value: 'morning', label: '🌅 Morning (7:00 AM - 4:00 PM)' },
+    { value: 'evening', label: '🌇 Evening (2:00 PM - 10:00 PM)' },
+    { value: 'night', label: '🌙 Night (7:00 PM - 4:00 AM)' },
+  ];
+
+  const overtimeOptions = [
+    { value: 'none', label: 'No Overtime' },
+    { value: '2hr', label: '⏱️ 2 Hours Overtime' },
+    { value: '4hr', label: '⏱️ 4 Hours Overtime' },
+  ];
 
   useEffect(() => {
     fetchData();
@@ -69,30 +65,6 @@ export default function DailyProductionPage({ user, username }) {
     }
   };
 
-  const addNewProduct = async () => {
-    if (!newProduct.productName || !newProduct.targetQuantity) {
-      toast.error('Please fill all fields');
-      return;
-    }
-    try {
-      await addDoc(collection(db, 'productionPlans'), {
-        productName: newProduct.productName,
-        targetQuantity: Number(newProduct.targetQuantity),
-        achievedQuantity: 0,
-        status: 'ongoing',
-        createdAt: new Date().toISOString(),
-        createdBy: username
-      });
-      toast.success('Product added successfully!');
-      setNewProduct({ productName: '', targetQuantity: '' });
-      setShowAddProduct(false);
-      fetchData();
-    } catch (error) {
-      console.error('Error adding product:', error);
-      toast.error('Failed to add product');
-    }
-  };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
@@ -100,7 +72,6 @@ export default function DailyProductionPage({ user, username }) {
         ...formData,
         achievedQuantity: Number(formData.achievedQuantity),
         date: new Date().toISOString(),
-        operator: formData.operator || username,
         loggedBy: username,
         timestamp: new Date().toISOString()
       };
@@ -116,14 +87,13 @@ export default function DailyProductionPage({ user, username }) {
         lastUpdated: new Date().toISOString()
       });
 
-      toast.success('Production logged successfully!');
+      toast.success('✅ Production logged successfully!');
       setShowModal(false);
       setFormData({
         planId: '',
         achievedQuantity: '',
         shift: 'morning',
-        operator: '',
-        machineUsed: '',
+        overtime: 'none',
         notes: ''
       });
       fetchData();
@@ -140,11 +110,16 @@ export default function DailyProductionPage({ user, username }) {
 
   const getShiftBadge = (shift) => {
     const colors = {
-      morning: 'bg-blue-500',
+      morning: 'bg-cyan-500',
       evening: 'bg-yellow-500',
       night: 'bg-purple-500'
     };
     return colors[shift] || 'bg-gray-500';
+  };
+
+  const getOvertimeLabel = (overtime) => {
+    const option = overtimeOptions.find(o => o.value === overtime);
+    return option ? option.label : 'No Overtime';
   };
 
   if (loading) {
@@ -156,72 +131,16 @@ export default function DailyProductionPage({ user, username }) {
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-3xl font-bold text-white">📊 Daily Production</h1>
-          <p className="text-gray-400 text-sm mt-1">Log and track daily production</p>
+          <p className="text-gray-400 text-sm mt-1">Log daily production with shift & overtime</p>
         </div>
         
-        <ProtectedComponent user={user} permission="createDailyProduction">
-          <button
-            onClick={() => setShowModal(true)}
-            className="bg-cyan-400/20 hover:bg-cyan-400/30 text-cyan-400 px-4 py-2 rounded-lg text-white flex items-center gap-2 transition-colors border border-cyan-400/30"
-          >
-            <Plus size={20} />
-            Log Production
-          </button>
-        </ProtectedComponent>
-      </div>
-
-      {/* Add Product Section */}
-      <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-4">
-        <div className="flex justify-between items-center mb-3">
-          <h2 className="text-lg font-semibold text-white">📦 Products</h2>
-          <button
-            onClick={() => setShowAddProduct(!showAddProduct)}
-            className="bg-emerald-400/20 hover:bg-emerald-400/30 text-emerald-400 px-4 py-2 rounded-lg text-sm flex items-center gap-2 transition-all border border-emerald-400/30"
-          >
-            <Package size={18} /> Add Product
-          </button>
-        </div>
-
-        {showAddProduct && (
-          <div className="bg-white/5 rounded-xl p-4 mb-3">
-            <div className="flex flex-wrap gap-4">
-              <input
-                type="text"
-                placeholder="Product Name (e.g., HT CT)"
-                value={newProduct.productName}
-                onChange={(e) => setNewProduct({ ...newProduct, productName: e.target.value })}
-                className="flex-1 bg-white/10 border border-white/10 rounded-lg px-4 py-2 text-white text-sm focus:outline-none focus:border-cyan-400/50"
-              />
-              <input
-                type="number"
-                placeholder="Target Quantity"
-                value={newProduct.targetQuantity}
-                onChange={(e) => setNewProduct({ ...newProduct, targetQuantity: e.target.value })}
-                className="w-32 bg-white/10 border border-white/10 rounded-lg px-4 py-2 text-white text-sm focus:outline-none focus:border-cyan-400/50"
-              />
-              <button
-                onClick={addNewProduct}
-                className="bg-emerald-400 hover:bg-emerald-500 px-6 py-2 rounded-lg text-black font-medium transition-all"
-              >
-                Add
-              </button>
-              <button
-                onClick={() => setShowAddProduct(false)}
-                className="bg-white/10 hover:bg-white/20 px-4 py-2 rounded-lg text-gray-400 transition-all"
-              >
-                Cancel
-              </button>
-            </div>
-          </div>
-        )}
-
-        <div className="flex flex-wrap gap-2">
-          {plans.map((plan) => (
-            <span key={plan.id} className="bg-white/5 border border-white/10 px-3 py-1 rounded-full text-sm text-gray-300">
-              {plan.productName} ({plan.targetQuantity})
-            </span>
-          ))}
-        </div>
+        <button
+          onClick={() => setShowModal(true)}
+          className="bg-cyan-400/20 hover:bg-cyan-400/30 text-cyan-400 px-4 py-2 rounded-lg flex items-center gap-2 transition-all border border-cyan-400/30"
+        >
+          <Plus size={20} />
+          Log Production
+        </button>
       </div>
 
       {/* Today's Entries */}
@@ -242,44 +161,35 @@ export default function DailyProductionPage({ user, username }) {
                 <div className="flex flex-wrap justify-between items-start gap-3">
                   <div className="flex-1">
                     <div className="flex items-center gap-3">
-                      <h4 className="text-white font-semibold">
-                        {getProductName(entry.planId)}
-                      </h4>
+                      <h4 className="text-white font-semibold">{getProductName(entry.planId)}</h4>
                       <span className={`text-xs px-2 py-0.5 rounded ${getShiftBadge(entry.shift)}`}>
                         {entry.shift}
                       </span>
+                      {entry.overtime && entry.overtime !== 'none' && (
+                        <span className="text-xs bg-orange-500/30 text-orange-300 px-2 py-0.5 rounded border border-orange-500/30">
+                          ⏱️ {getOvertimeLabel(entry.overtime)}
+                        </span>
+                      )}
                     </div>
                     
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-2">
+                    <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mt-2">
                       <div>
                         <p className="text-xs text-gray-400">Quantity</p>
                         <p className="text-emerald-400 font-semibold">{entry.achievedQuantity}</p>
                       </div>
                       <div>
-                        <p className="text-xs text-gray-400">Operator</p>
-                        <p className="text-white">{entry.operator || entry.loggedBy}</p>
-                      </div>
-                      <div>
-                        <p className="text-xs text-gray-400">Machine</p>
-                        <p className="text-white">{entry.machineUsed || 'N/A'}</p>
+                        <p className="text-xs text-gray-400">Logged By</p>
+                        <p className="text-white">{entry.loggedBy}</p>
                       </div>
                       <div>
                         <p className="text-xs text-gray-400">Time</p>
-                        <p className="text-white text-sm">
-                          {new Date(entry.date).toLocaleTimeString()}
-                        </p>
+                        <p className="text-white text-sm">{new Date(entry.date).toLocaleTimeString()}</p>
                       </div>
                     </div>
                     
                     {entry.notes && (
                       <p className="text-sm text-gray-400 mt-2">📝 {entry.notes}</p>
                     )}
-                  </div>
-                  
-                  <div className="flex items-center gap-2">
-                    <span className="text-xs text-gray-500">
-                      Logged by: {entry.loggedBy}
-                    </span>
                   </div>
                 </div>
               </div>
@@ -294,10 +204,7 @@ export default function DailyProductionPage({ user, username }) {
           <div className="bg-[#0d0d2b] rounded-2xl p-6 max-w-md w-full border border-white/10">
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-2xl font-bold text-white">Log Production</h2>
-              <button
-                onClick={() => setShowModal(false)}
-                className="text-gray-400 hover:text-white transition-colors"
-              >
+              <button onClick={() => setShowModal(false)} className="text-gray-400 hover:text-white">
                 <X size={24} />
               </button>
             </div>
@@ -333,38 +240,33 @@ export default function DailyProductionPage({ user, username }) {
               </div>
               
               <div>
-                <label className="block text-sm text-gray-400 mb-1">Shift</label>
+                <label className="block text-sm text-gray-400 mb-1 flex items-center gap-2">
+                  <Clock size={16} /> Shift
+                </label>
                 <select
                   value={formData.shift}
                   onChange={(e) => setFormData({ ...formData, shift: e.target.value })}
                   className="w-full bg-white/10 border border-white/10 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-cyan-400/50"
                 >
-                  <option value="morning">Morning (6AM - 2PM)</option>
-                  <option value="evening">Evening (2PM - 10PM)</option>
-                  <option value="night">Night (10PM - 6AM)</option>
+                  {shiftOptions.map(option => (
+                    <option key={option.value} value={option.value}>{option.label}</option>
+                  ))}
                 </select>
               </div>
               
               <div>
-                <label className="block text-sm text-gray-400 mb-1">Operator Name</label>
-                <input
-                  type="text"
-                  value={formData.operator}
-                  onChange={(e) => setFormData({ ...formData, operator: e.target.value })}
+                <label className="block text-sm text-gray-400 mb-1 flex items-center gap-2">
+                  ⏱️ Overtime
+                </label>
+                <select
+                  value={formData.overtime}
+                  onChange={(e) => setFormData({ ...formData, overtime: e.target.value })}
                   className="w-full bg-white/10 border border-white/10 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-cyan-400/50"
-                  placeholder="Enter operator name"
-                />
-              </div>
-              
-              <div>
-                <label className="block text-sm text-gray-400 mb-1">Machine Used</label>
-                <input
-                  type="text"
-                  value={formData.machineUsed}
-                  onChange={(e) => setFormData({ ...formData, machineUsed: e.target.value })}
-                  className="w-full bg-white/10 border border-white/10 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-cyan-400/50"
-                  placeholder="Enter machine name"
-                />
+                >
+                  {overtimeOptions.map(option => (
+                    <option key={option.value} value={option.value}>{option.label}</option>
+                  ))}
+                </select>
               </div>
               
               <div>
@@ -379,18 +281,10 @@ export default function DailyProductionPage({ user, username }) {
               </div>
               
               <div className="flex gap-3 pt-2">
-                <button
-                  type="submit"
-                  className="flex-1 bg-cyan-400 hover:bg-cyan-500 py-2 rounded-lg text-black font-semibold transition-all"
-                >
-                  <Check size={18} className="inline mr-1" />
-                  Submit
+                <button type="submit" className="flex-1 bg-cyan-400 hover:bg-cyan-500 py-2 rounded-lg text-black font-semibold transition-all">
+                  <Check size={18} className="inline mr-1" /> Submit
                 </button>
-                <button
-                  type="button"
-                  onClick={() => setShowModal(false)}
-                  className="flex-1 bg-white/10 hover:bg-white/20 py-2 rounded-lg text-white font-semibold transition-all"
-                >
+                <button type="button" onClick={() => setShowModal(false)} className="flex-1 bg-white/10 hover:bg-white/20 py-2 rounded-lg text-white font-semibold transition-all">
                   Cancel
                 </button>
               </div>
