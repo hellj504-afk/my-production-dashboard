@@ -307,4 +307,99 @@ export default function DashboardPage({ user, username }) {
                     type="text"
                     value={editingProduct.productName}
                     onChange={(e) => setEditingProduct({ ...editingProduct, productName: e.target.value })}
-                    className="bg-white/10 border border-white/10 rounded px-2 py-0.5 text-white
+                    className="bg-white/10 border border-white/10 rounded px-2 py-0.5 text-white text-sm w-24 focus:outline-none focus:border-emerald-400/50"
+                  />
+                  <input
+                    type="number"
+                    value={editingProduct.targetQuantity}
+                    onChange={(e) => setEditingProduct({ ...editingProduct, targetQuantity: e.target.value })}
+                    className="bg-white/10 border border-white/10 rounded px-2 py-0.5 text-white text-sm w-16 focus:outline-none focus:border-emerald-400/50"
+                  />
+                  <button onClick={saveEdit} className="text-emerald-400 hover:text-emerald-300">
+                    <Check size={16} />
+                  </button>
+                  <button onClick={() => setEditingProduct(null)} className="text-gray-500 hover:text-rose-400">
+                    <X size={16} />
+                  </button>
+                </div>
+              ) : (
+                <>
+                  <span>{product.productName}</span>
+                  <span className="text-gray-500 text-xs">({product.targetQuantity})</span>
+                  <button onClick={() => startEdit(product)} className="text-gray-500 hover:text-cyan-400 transition-all ml-1 opacity-0 group-hover:opacity-100">
+                    <Edit2 size={14} />
+                  </button>
+                  <button onClick={() => deleteProduct(product.id, product.productName)} className="text-gray-500 hover:text-rose-400 transition-all opacity-0 group-hover:opacity-100">
+                    <X size={14} />
+                  </button>
+                </>
+              )}
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Summary Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-6 text-center shadow-lg shadow-cyan-500/10 hover:shadow-cyan-500/20 transition-all">
+          <p className="text-gray-400 text-sm uppercase tracking-wider">Global Plan Qty</p>
+          <p className="text-3xl font-bold text-white mt-2">{totalPlan.toLocaleString()}</p>
+        </div>
+        <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-6 text-center shadow-lg shadow-emerald-500/10 hover:shadow-emerald-500/20 transition-all">
+          <p className="text-gray-400 text-sm uppercase tracking-wider">Total Achieved</p>
+          <p className="text-3xl font-bold text-emerald-400 mt-2 animate-pulse">{totalAchieved.toLocaleString()}</p>
+        </div>
+        <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-6 text-center shadow-lg shadow-cyan-500/10 hover:shadow-cyan-500/20 transition-all">
+          <p className="text-gray-400 text-sm uppercase tracking-wider">Average Progress</p>
+          <div className="flex items-center justify-center gap-4 mt-2">
+            <p className="text-3xl font-bold text-cyan-400 animate-pulse">{avgProgress}%</p>
+            <div className="flex-1 max-w-[100px] bg-white/10 rounded-full h-2">
+              <div className="bg-gradient-to-r from-cyan-400 to-purple-500 h-2 rounded-full transition-all duration-500" style={{ width: `${Math.min(avgProgress, 100)}%` }}></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Tower Progress Bars */}
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+        {plans.map((product) => {
+          const progress = product.targetQuantity > 0 ? ((product.achievedQuantity / product.targetQuantity) * 100).toFixed(1) : 0;
+          const color = productColors[product.productName] || 'from-gray-400 to-gray-600';
+          const towerHeight = Math.min(progress, 100);
+
+          return (
+            <div key={product.id} className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-4 shadow-lg shadow-cyan-500/5 hover:shadow-cyan-500/20 transition-all duration-300 hover:scale-105">
+              <h3 className="text-lg font-semibold text-white tracking-wide text-center">{product.productName}</h3>
+              
+              <div className="relative w-full h-48 bg-white/5 rounded-lg mt-3 overflow-hidden border border-white/5">
+                <div className="absolute top-0 left-0 right-0 border-t-2 border-dashed border-white/20 z-10"></div>
+                
+                <div 
+                  className={`absolute bottom-0 left-0 right-0 bg-gradient-to-t ${color} transition-all duration-1000 rounded-t-lg shadow-lg shadow-cyan-500/20`}
+                  style={{ height: `${Math.min(towerHeight, 100)}%` }}
+                >
+                  <div className="absolute inset-0 bg-gradient-to-t from-transparent to-white/10 animate-pulse"></div>
+                </div>
+                
+                <div 
+                  className={`absolute bottom-0 left-0 right-0 bg-gradient-to-t ${color} blur-xl opacity-30 transition-all duration-1000`}
+                  style={{ height: `${Math.min(towerHeight, 100)}%` }}
+                ></div>
+                
+                <div className="absolute inset-0 flex items-center justify-center flex-col z-10">
+                  <span className="text-2xl font-bold text-white drop-shadow-lg">{progress}%</span>
+                  <span className="text-xs text-gray-400">{product.achievedQuantity || 0} / {product.targetQuantity}</span>
+                </div>
+              </div>
+              
+              <div className="flex justify-between text-xs text-gray-400 mt-2 px-1">
+                <span>🎯 {product.targetQuantity}</span>
+                <span className="text-emerald-400">✅ {product.achievedQuantity || 0}</span>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
