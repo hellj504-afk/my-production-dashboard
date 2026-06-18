@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
-import { collection, getDocs, addDoc, deleteDoc, doc, onSnapshot } from 'firebase/firestore';
+import { collection, getDocs, addDoc, deleteDoc, updateDoc, doc, onSnapshot } from 'firebase/firestore';
 import { db } from '../../firebase/config';
-import { Plus, X, Trash2, Package } from 'lucide-react';
+import { Plus, X, Trash2, Package, Edit2, Check } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 export default function DashboardPage({ user, username }) {
@@ -11,6 +11,7 @@ export default function DashboardPage({ user, username }) {
   const [showNoteInput, setShowNoteInput] = useState(false);
   const [noteText, setNoteText] = useState('');
   const [showAddProduct, setShowAddProduct] = useState(false);
+  const [editingProduct, setEditingProduct] = useState(null);
   const [newProduct, setNewProduct] = useState({
     productName: '',
     targetQuantity: ''
@@ -69,6 +70,34 @@ export default function DashboardPage({ user, username }) {
     } catch (error) {
       console.error('Error adding product:', error);
       toast.error('Failed to add product');
+    }
+  };
+
+  // Edit Product
+  const startEdit = (product) => {
+    setEditingProduct({
+      id: product.id,
+      productName: product.productName,
+      targetQuantity: product.targetQuantity
+    });
+  };
+
+  const saveEdit = async () => {
+    if (!editingProduct.productName.trim() || !editingProduct.targetQuantity) {
+      toast.error('Please fill all fields');
+      return;
+    }
+    try {
+      await updateDoc(doc(db, 'productionPlans', editingProduct.id), {
+        productName: editingProduct.productName.trim(),
+        targetQuantity: Number(editingProduct.targetQuantity),
+        lastUpdated: new Date().toISOString()
+      });
+      toast.success(`✅ ${editingProduct.productName} updated!`);
+      setEditingProduct(null);
+    } catch (error) {
+      console.error('Error updating product:', error);
+      toast.error('Failed to update product');
     }
   };
 
@@ -231,7 +260,7 @@ export default function DashboardPage({ user, username }) {
         </div>
       </div>
 
-      {/* ===== ADD PRODUCT SECTION ===== */}
+      {/* ===== PRODUCTS SECTION (Add + Edit + Delete) ===== */}
       <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-4 shadow-lg shadow-cyan-500/5">
         <div className="flex items-center justify-between">
           <h2 className="text-sm font-semibold text-emerald-400 flex items-center gap-2">
@@ -247,6 +276,7 @@ export default function DashboardPage({ user, username }) {
           </button>
         </div>
 
+        {/* Add Product Form */}
         {showAddProduct && (
           <div className="flex flex-wrap gap-3 mt-3">
             <input
@@ -278,21 +308,60 @@ export default function DashboardPage({ user, username }) {
           </div>
         )}
 
-        {/* Product Tags with Delete */}
+        {/* Product Tags with Edit & Delete */}
         <div className="flex flex-wrap gap-2 mt-3">
           {plans.map((product) => (
             <div
               key={product.id}
-              className="flex items-center gap-1 bg-white/5 border border-white/10 rounded-full px-3 py-1 text-sm text-gray-300 hover:border-rose-400/30 transition-all group"
+              className="flex items-center gap-1 bg-white/5 border border-white/10 rounded-full px-3 py-1 text-sm text-gray-300 hover:border-cyan-400/30 transition-all group"
             >
-              <span>{product.productName}</span>
-              <span className="text-gray-500 text-xs">({product.targetQuantity})</span>
-              <button
-                onClick={() => deleteProduct(product.id, product.productName)}
-                className="text-gray-500 hover:text-rose-400 transition-all ml-1 opacity-0 group-hover:opacity-100"
-              >
-                <X size={14} />
-              </button>
+              {editingProduct && editingProduct.id === product.id ? (
+                // Edit Mode
+                <div className="flex items-center gap-2">
+                  <input
+                    type="text"
+                    value={editingProduct.productName}
+                    onChange={(e) => setEditingProduct({ ...editingProduct, productName: e.target.value })}
+                    className="bg-white/10 border border-white/10 rounded px-2 py-0.5 text-white text-sm w-24 focus:outline-none focus:border-emerald-400/50"
+                  />
+                  <input
+                    type="number"
+                    value={editingProduct.targetQuantity}
+                    onChange={(e) => setEditingProduct({ ...editingProduct, targetQuantity: e.target.value })}
+                    className="bg-white/10 border border-white/10 rounded px-2 py-0.5 text-white text-sm w-16 focus:outline-none focus:border-emerald-400/50"
+                  />
+                  <button
+                    onClick={saveEdit}
+                    className="text-emerald-400 hover:text-emerald-300 transition-all"
+                  >
+                    <Check size={16} />
+                  </button>
+                  <button
+                    onClick={() => setEditingProduct(null)}
+                    className="text-gray-500 hover:text-rose-400 transition-all"
+                  >
+                    <X size={16} />
+                  </button>
+                </div>
+              ) : (
+                // View Mode
+                <>
+                  <span>{product.productName}</span>
+                  <span className="text-gray-500 text-xs">({product.targetQuantity})</span>
+                  <button
+                    onClick={() => startEdit(product)}
+                    className="text-gray-500 hover:text-cyan-400 transition-all ml-1 opacity-0 group-hover:opacity-100"
+                  >
+                    <Edit2 size={14} />
+                  </button>
+                  <button
+                    onClick={() => deleteProduct(product.id, product.productName)}
+                    className="text-gray-500 hover:text-rose-400 transition-all opacity-0 group-hover:opacity-100"
+                  >
+                    <X size={14} />
+                  </button>
+                </>
+              )}
             </div>
           ))}
         </div>
