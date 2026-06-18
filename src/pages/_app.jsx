@@ -10,25 +10,22 @@ function MyApp({ Component, pageProps }) {
   const router = useRouter();
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
-  
-  // ✅ FIX: router.asPath se username nikaalein
-  const getUsernameFromPath = () => {
-    const path = router.asPath || '';
+
+  // ✅ DIRECT: window.location se username nikaalein
+  const getUsername = () => {
+    if (typeof window === 'undefined') return null;
+    const path = window.location.pathname;
     // /waqar/dashboard → waqar
     // /umair/dashboard → umair
-    const match = path.match(/^\/([^\/]+)/);
-    if (match) {
-      return match[1];
-    }
-    return null;
+    const parts = path.split('/').filter(Boolean);
+    return parts.length > 0 ? parts[0] : null;
   };
 
-  const username = getUsernameFromPath();
+  const username = getUsername();
 
   useEffect(() => {
-    // Agar username nahi mila toh guest use karein
     if (!username) {
-      console.log("👤 No username found in path, using guest");
+      console.log("👤 No username found, using guest");
       setUser(USER_CONFIG.guest);
       setLoading(false);
       return;
@@ -39,7 +36,6 @@ function MyApp({ Component, pageProps }) {
         setLoading(true);
         console.log("🔍 Fetching user for:", username);
         
-        // 1. Config se user fetch karein
         const configUser = getUserByUsername(username);
         console.log("📋 Config user:", configUser?.displayName || "Not found");
         
@@ -49,7 +45,6 @@ function MyApp({ Component, pageProps }) {
           return;
         }
 
-        // 2. Firestore se try karein
         try {
           const userDoc = await getDoc(doc(db, 'users', username));
           if (userDoc.exists()) {
@@ -67,7 +62,6 @@ function MyApp({ Component, pageProps }) {
           console.warn("⚠️ Firestore error:", firestoreError);
         }
 
-        // 3. Agar kuch nahi mila toh guest
         console.log("👤 Using guest for:", username);
         setUser(USER_CONFIG.guest);
         setLoading(false);
@@ -80,7 +74,7 @@ function MyApp({ Component, pageProps }) {
     };
 
     fetchUser();
-  }, [username, router.asPath]);
+  }, [username]);
 
   if (loading) {
     return (
