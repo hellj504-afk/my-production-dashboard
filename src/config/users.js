@@ -400,8 +400,20 @@ export const USER_CONFIG = {
   }
 };
 
+// ✅ FIXED: getUserByUsername function
 export const getUserByUsername = (username) => {
-  return USER_CONFIG[username] || USER_CONFIG.guest;
+  console.log("🔍 Looking for user:", username);
+  console.log("📋 Available users:", Object.keys(USER_CONFIG));
+  
+  // Check if user exists in config
+  if (username && USER_CONFIG[username]) {
+    console.log("✅ Found user:", username);
+    return USER_CONFIG[username];
+  }
+  
+  // If not found, return guest
+  console.log("👤 User not found, returning guest");
+  return USER_CONFIG.guest;
 };
 
 export const hasPermission = (username, permission) => {
