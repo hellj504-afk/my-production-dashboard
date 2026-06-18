@@ -8,7 +8,7 @@ import {
   doc 
 } from 'firebase/firestore';
 import { db } from '../../firebase/config';
-import { Plus, X, Edit, Trash2, User, Check, AlertCircle, Copy, Link as LinkIcon } from 'lucide-react';
+import { Plus, X, Edit, Trash2, User, Check, AlertCircle, Copy, LinkIcon } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 export default function UserManagementPage({ user, username }) {
@@ -26,7 +26,6 @@ export default function UserManagementPage({ user, username }) {
   });
 
   const roleOptions = [
-    { value: 'super_admin', label: '👑 Super Admin' },
     { value: 'production_planner', label: '📋 Production Planner' },
     { value: 'floor_supervisor', label: '🏭 Floor Supervisor' },
     { value: 'viewer', label: '👀 Viewer' }
@@ -34,7 +33,6 @@ export default function UserManagementPage({ user, username }) {
 
   const shiftOptions = ['morning', 'evening', 'night'];
 
-  // Base URL for the app
   const BASE_URL = typeof window !== 'undefined' 
     ? window.location.origin 
     : 'https://my-production-dashboard.vercel.app';
@@ -62,26 +60,37 @@ export default function UserManagementPage({ user, username }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      // Generate username from name (lowercase, no spaces)
       const generatedUsername = formData.name
         .toLowerCase()
         .replace(/\s+/g, '')
         .replace(/[^a-z0-9]/g, '');
 
-      // Check if username already exists
       const existingUser = users.find(u => u.username === generatedUsername);
       if (existingUser && !editingUser) {
-        toast.error(`Username "${generatedUsername}" already exists! Please use a different name.`);
+        toast.error(`Username "${generatedUsername}" already exists!`);
         return;
       }
 
+      // Agar Super Admin checkbox checked hai toh role set karein
+      let finalRole = formData.role;
+      if (formData.isSuperAdmin) {
+        finalRole = 'super_admin';
+      }
+
       const userData = {
-        ...formData,
+        name: formData.name,
+        email: formData.email,
+        role: finalRole,
+        shift: formData.shift || '',
+        employeeId: formData.employeeId || '',
+        isActive: formData.isActive,
         username: generatedUsername,
         accessLink: `${BASE_URL}/${generatedUsername}/dashboard`,
         createdAt: new Date().toISOString(),
         lastUpdated: new Date().toISOString(),
-        createdBy: username
+        createdBy: username,
+        // Permissions automatically assigned based on role
+        permissions: getPermissionsByRole(finalRole)
       };
 
       if (editingUser) {
@@ -89,7 +98,7 @@ export default function UserManagementPage({ user, username }) {
         toast.success('User updated successfully!');
       } else {
         await addDoc(collection(db, 'users'), userData);
-        toast.success(`✅ User created! Access link generated: ${generatedUsername}`);
+        toast.success(`✅ User created! Link: ${generatedUsername}`);
       }
       
       setShowModal(false);
@@ -100,13 +109,125 @@ export default function UserManagementPage({ user, username }) {
         role: 'viewer',
         shift: '',
         employeeId: '',
-        isActive: true
+        isActive: true,
+        isSuperAdmin: false
       });
       fetchUsers();
     } catch (error) {
       console.error('Error saving user:', error);
       toast.error('Failed to save user');
     }
+  };
+
+  // Role ke hisaab se permissions return karein
+  const getPermissionsByRole = (role) => {
+    const permissionsConfig = {
+      super_admin: {
+        viewDashboard: true,
+        viewPlans: true,
+        createPlan: true,
+        editPlan: true,
+        deletePlan: true,
+        viewDailyProduction: true,
+        createDailyProduction: true,
+        editDailyProduction: true,
+        deleteDailyProduction: true,
+        viewShortages: true,
+        createShortage: true,
+        editShortage: true,
+        deleteShortage: true,
+        resolveShortage: true,
+        viewPriorities: true,
+        createPriority: true,
+        editPriority: true,
+        deletePriority: true,
+        viewLiveNotes: true,
+        createLiveNote: true,
+        editLiveNote: true,
+        deleteLiveNote: true,
+        manageUsers: true,
+        viewAuditLog: true,
+      },
+      production_planner: {
+        viewDashboard: true,
+        viewPlans: true,
+        createPlan: true,
+        editPlan: true,
+        deletePlan: false,
+        viewDailyProduction: true,
+        createDailyProduction: true,
+        editDailyProduction: true,
+        deleteDailyProduction: false,
+        viewShortages: true,
+        createShortage: true,
+        editShortage: true,
+        deleteShortage: false,
+        resolveShortage: true,
+        viewPriorities: true,
+        createPriority: true,
+        editPriority: true,
+        deletePriority: false,
+        viewLiveNotes: true,
+        createLiveNote: true,
+        editLiveNote: true,
+        deleteLiveNote: false,
+        manageUsers: false,
+        viewAuditLog: false,
+      },
+      floor_supervisor: {
+        viewDashboard: true,
+        viewPlans: true,
+        createPlan: false,
+        editPlan: false,
+        deletePlan: false,
+        viewDailyProduction: true,
+        createDailyProduction: true,
+        editDailyProduction: true,
+        deleteDailyProduction: false,
+        viewShortages: true,
+        createShortage: false,
+        editShortage: false,
+        deleteShortage: false,
+        resolveShortage: true,
+        viewPriorities: true,
+        createPriority: false,
+        editPriority: false,
+        deletePriority: false,
+        viewLiveNotes: true,
+        createLiveNote: false,
+        editLiveNote: false,
+        deleteLiveNote: false,
+        manageUsers: false,
+        viewAuditLog: false,
+      },
+      viewer: {
+        viewDashboard: true,
+        viewPlans: false,
+        createPlan: false,
+        editPlan: false,
+        deletePlan: false,
+        viewDailyProduction: false,
+        createDailyProduction: false,
+        editDailyProduction: false,
+        deleteDailyProduction: false,
+        viewShortages: false,
+        createShortage: false,
+        editShortage: false,
+        deleteShortage: false,
+        resolveShortage: false,
+        viewPriorities: false,
+        createPriority: false,
+        editPriority: false,
+        deletePriority: false,
+        viewLiveNotes: false,
+        createLiveNote: false,
+        editLiveNote: false,
+        deleteLiveNote: false,
+        manageUsers: false,
+        viewAuditLog: false,
+      }
+    };
+    return permissionsConfig[role] || permissionsConfig.viewer;
   };
 
   const handleDelete = async (userId) => {
@@ -126,10 +247,11 @@ export default function UserManagementPage({ user, username }) {
     setFormData({
       name: userData.name,
       email: userData.email,
-      role: userData.role,
+      role: userData.role === 'super_admin' ? 'viewer' : userData.role,
       shift: userData.shift || '',
       employeeId: userData.employeeId || '',
-      isActive: userData.isActive !== undefined ? userData.isActive : true
+      isActive: userData.isActive !== undefined ? userData.isActive : true,
+      isSuperAdmin: userData.role === 'super_admin'
     });
     setShowModal(true);
   };
@@ -140,7 +262,7 @@ export default function UserManagementPage({ user, username }) {
         isActive: !currentStatus,
         lastUpdated: new Date().toISOString()
       });
-      toast.success(`User ${!currentStatus ? 'activated' : 'deactivated'} successfully!`);
+      toast.success(`User ${!currentStatus ? 'activated' : 'deactivated'}!`);
       fetchUsers();
     } catch (error) {
       console.error('Error updating user status:', error);
@@ -150,9 +272,8 @@ export default function UserManagementPage({ user, username }) {
 
   const copyLink = (link) => {
     navigator.clipboard.writeText(link).then(() => {
-      toast.success('✅ Link copied to clipboard!');
+      toast.success('✅ Link copied!');
     }).catch(() => {
-      // Fallback
       const textArea = document.createElement('textarea');
       textArea.value = link;
       document.body.appendChild(textArea);
@@ -174,7 +295,7 @@ export default function UserManagementPage({ user, username }) {
 
   const getRoleLabel = (role) => {
     const option = roleOptions.find(r => r.value === role);
-    return option ? option.label : role;
+    return option ? option.label : role.replace('_', ' ').toUpperCase();
   };
 
   if (loading) {
@@ -208,7 +329,8 @@ export default function UserManagementPage({ user, username }) {
               role: 'viewer',
               shift: '',
               employeeId: '',
-              isActive: true
+              isActive: true,
+              isSuperAdmin: false
             });
             setShowModal(true);
           }}
@@ -251,12 +373,13 @@ export default function UserManagementPage({ user, username }) {
                         {userData.employeeId && (
                           <p className="text-xs text-gray-500">ID: {userData.employeeId}</p>
                         )}
+                        <p className="text-xs text-gray-600">@{userData.username}</p>
                       </div>
                     </div>
                   </td>
                   <td className="px-6 py-4">
                     <span className={`text-xs px-3 py-1 rounded-full ${getRoleColor(userData.role)}`}>
-                      {getRoleLabel(userData.role)}
+                      {userData.role === 'super_admin' ? '👑 Super Admin' : getRoleLabel(userData.role)}
                     </span>
                     {userData.shift && (
                       <span className="text-xs bg-yellow-600 px-2 py-0.5 rounded ml-1 capitalize">
@@ -350,7 +473,7 @@ export default function UserManagementPage({ user, username }) {
                   placeholder="Enter full name"
                 />
                 <p className="text-xs text-gray-500 mt-1">
-                  🔑 Username will be auto-generated: <span className="text-cyan-400">
+                  🔑 Username: <span className="text-cyan-400">
                     {formData.name ? formData.name.toLowerCase().replace(/\s+/g, '') : 'username'}
                   </span>
                 </p>
@@ -383,6 +506,22 @@ export default function UserManagementPage({ user, username }) {
                   ))}
                 </select>
               </div>
+
+              {/* Super Admin Checkbox - Sirf current user Super Admin hai toh */}
+              {user.role === 'super_admin' && (
+                <div className="flex items-center gap-3 bg-purple-500/10 border border-purple-500/30 rounded-lg p-3">
+                  <input
+                    type="checkbox"
+                    checked={formData.isSuperAdmin || false}
+                    onChange={(e) => setFormData({ ...formData, isSuperAdmin: e.target.checked })}
+                    className="w-4 h-4 accent-purple-500"
+                    id="makeSuperAdmin"
+                  />
+                  <label htmlFor="makeSuperAdmin" className="text-white text-sm">
+                    👑 Make this user Super Admin (Full Access)
+                  </label>
+                </div>
+              )}
               
               <div>
                 <label className="block text-sm text-gray-400 mb-1">Employee ID</label>
@@ -431,8 +570,8 @@ export default function UserManagementPage({ user, username }) {
                 <div className="bg-white/5 border border-white/10 rounded-lg p-3">
                   <p className="text-xs text-gray-400 flex items-center gap-2">
                     <LinkIcon size={14} className="text-cyan-400" />
-                    Access link will be: 
-                    <span className="text-cyan-400 font-mono">
+                    Access link: 
+                    <span className="text-cyan-400 font-mono text-xs truncate">
                       {BASE_URL}/{formData.name ? formData.name.toLowerCase().replace(/\s+/g, '') : 'username'}/dashboard
                     </span>
                   </p>
