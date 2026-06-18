@@ -5,10 +5,10 @@ import {
   addDoc, 
   updateDoc, 
   deleteDoc, 
-  doc
+  doc 
 } from 'firebase/firestore';
 import { db } from '../../firebase/config';
-import { Plus, X, Edit, Trash2, User, Check, AlertCircle } from 'lucide-react';
+import { Plus, X, Edit, Trash2, User, Check, AlertCircle, Copy, Link as LinkIcon } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 export default function UserManagementPage({ user, username }) {
@@ -34,6 +34,11 @@ export default function UserManagementPage({ user, username }) {
 
   const shiftOptions = ['morning', 'evening', 'night'];
 
+  // Base URL for the app
+  const BASE_URL = typeof window !== 'undefined' 
+    ? window.location.origin 
+    : 'https://my-production-dashboard.vercel.app';
+
   useEffect(() => {
     fetchUsers();
   }, []);
@@ -57,8 +62,23 @@ export default function UserManagementPage({ user, username }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
+      // Generate username from name (lowercase, no spaces)
+      const generatedUsername = formData.name
+        .toLowerCase()
+        .replace(/\s+/g, '')
+        .replace(/[^a-z0-9]/g, '');
+
+      // Check if username already exists
+      const existingUser = users.find(u => u.username === generatedUsername);
+      if (existingUser && !editingUser) {
+        toast.error(`Username "${generatedUsername}" already exists! Please use a different name.`);
+        return;
+      }
+
       const userData = {
         ...formData,
+        username: generatedUsername,
+        accessLink: `${BASE_URL}/${generatedUsername}/dashboard`,
         createdAt: new Date().toISOString(),
         lastUpdated: new Date().toISOString(),
         createdBy: username
@@ -69,7 +89,7 @@ export default function UserManagementPage({ user, username }) {
         toast.success('User updated successfully!');
       } else {
         await addDoc(collection(db, 'users'), userData);
-        toast.success('User added successfully!');
+        toast.success(`✅ User created! Access link generated: ${generatedUsername}`);
       }
       
       setShowModal(false);
@@ -128,6 +148,21 @@ export default function UserManagementPage({ user, username }) {
     }
   };
 
+  const copyLink = (link) => {
+    navigator.clipboard.writeText(link).then(() => {
+      toast.success('✅ Link copied to clipboard!');
+    }).catch(() => {
+      // Fallback
+      const textArea = document.createElement('textarea');
+      textArea.value = link;
+      document.body.appendChild(textArea);
+      textArea.select();
+      document.execCommand('copy');
+      document.body.removeChild(textArea);
+      toast.success('✅ Link copied!');
+    });
+  };
+
   const getRoleColor = (role) => {
     switch(role) {
       case 'super_admin': return 'bg-purple-600';
@@ -161,7 +196,7 @@ export default function UserManagementPage({ user, username }) {
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-3xl font-bold text-white">👥 User Management</h1>
-          <p className="text-gray-400 text-sm mt-1">Manage system users and permissions</p>
+          <p className="text-gray-400 text-sm mt-1">Manage users and their access links</p>
         </div>
         
         <button
@@ -177,25 +212,25 @@ export default function UserManagementPage({ user, username }) {
             });
             setShowModal(true);
           }}
-          className="bg-accent hover:bg-blue-700 px-4 py-2 rounded-lg text-white flex items-center gap-2 transition-colors"
+          className="bg-cyan-400/20 hover:bg-cyan-400/30 text-cyan-400 px-4 py-2 rounded-lg flex items-center gap-2 transition-all border border-cyan-400/30"
         >
           <Plus size={20} />
           Add User
         </button>
       </div>
 
-      <div className="bg-card rounded-lg shadow-lg overflow-x-auto">
+      <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl overflow-x-auto shadow-lg shadow-cyan-500/5">
         <table className="w-full">
-          <thead className="bg-gray-800">
+          <thead className="bg-white/5 border-b border-white/10">
             <tr>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">User</th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Role</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Shift</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Access Link</th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Status</th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Actions</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-700">
+          <tbody className="divide-y divide-white/5">
             {users.length === 0 ? (
               <tr>
                 <td colSpan="5" className="px-6 py-8 text-center text-gray-400">
@@ -204,11 +239,11 @@ export default function UserManagementPage({ user, username }) {
               </tr>
             ) : (
               users.map((userData) => (
-                <tr key={userData.id} className="hover:bg-gray-800/50 transition-colors">
+                <tr key={userData.id} className="hover:bg-white/5 transition-colors">
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-full bg-gray-700 flex items-center justify-center">
-                        <User size={18} className="text-gray-300" />
+                      <div className="w-10 h-10 rounded-full bg-gradient-to-r from-cyan-400 to-purple-500 flex items-center justify-center shadow-lg shadow-cyan-500/20">
+                        <User size={18} className="text-white" />
                       </div>
                       <div>
                         <p className="text-white font-medium">{userData.name}</p>
@@ -223,14 +258,28 @@ export default function UserManagementPage({ user, username }) {
                     <span className={`text-xs px-3 py-1 rounded-full ${getRoleColor(userData.role)}`}>
                       {getRoleLabel(userData.role)}
                     </span>
-                  </td>
-                  <td className="px-6 py-4">
-                    {userData.shift ? (
-                      <span className="text-xs bg-yellow-600 px-3 py-1 rounded-full capitalize">
+                    {userData.shift && (
+                      <span className="text-xs bg-yellow-600 px-2 py-0.5 rounded ml-1 capitalize">
                         {userData.shift}
                       </span>
+                    )}
+                  </td>
+                  <td className="px-6 py-4">
+                    {userData.accessLink ? (
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs text-cyan-400 truncate max-w-[150px]">
+                          {userData.accessLink}
+                        </span>
+                        <button
+                          onClick={() => copyLink(userData.accessLink)}
+                          className="text-gray-400 hover:text-cyan-400 transition-colors"
+                          title="Copy link"
+                        >
+                          <Copy size={16} />
+                        </button>
+                      </div>
                     ) : (
-                      <span className="text-xs text-gray-500">N/A</span>
+                      <span className="text-xs text-gray-500">No link</span>
                     )}
                   </td>
                   <td className="px-6 py-4">
@@ -244,23 +293,23 @@ export default function UserManagementPage({ user, username }) {
                     <div className="flex gap-2">
                       <button
                         onClick={() => handleEdit(userData)}
-                        className="bg-yellow-600 hover:bg-yellow-700 p-1.5 rounded text-white transition-colors"
+                        className="bg-yellow-600/20 hover:bg-yellow-600/30 text-yellow-400 p-1.5 rounded transition-colors"
                       >
                         <Edit size={16} />
                       </button>
                       <button
                         onClick={() => toggleUserStatus(userData.id, userData.isActive !== false)}
-                        className={`p-1.5 rounded text-white transition-colors ${
+                        className={`p-1.5 rounded transition-colors ${
                           userData.isActive !== false 
-                            ? 'bg-red-600 hover:bg-red-700' 
-                            : 'bg-green-600 hover:bg-green-700'
+                            ? 'bg-red-600/20 hover:bg-red-600/30 text-red-400' 
+                            : 'bg-green-600/20 hover:bg-green-600/30 text-green-400'
                         }`}
                       >
                         {userData.isActive !== false ? <X size={16} /> : <Check size={16} />}
                       </button>
                       <button
                         onClick={() => handleDelete(userData.id)}
-                        className="bg-red-600 hover:bg-red-700 p-1.5 rounded text-white transition-colors"
+                        className="bg-red-600/20 hover:bg-red-600/30 text-red-400 p-1.5 rounded transition-colors"
                       >
                         <Trash2 size={16} />
                       </button>
@@ -276,7 +325,7 @@ export default function UserManagementPage({ user, username }) {
       {/* Modal */}
       {showModal && (
         <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
-          <div className="bg-card rounded-lg p-6 max-w-md w-full max-h-[90vh] overflow-y-auto">
+          <div className="bg-[#0d0d2b] rounded-2xl p-6 max-w-md w-full max-h-[90vh] overflow-y-auto border border-white/10">
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-2xl font-bold text-white">
                 {editingUser ? 'Edit User' : 'Add User'}
@@ -296,10 +345,15 @@ export default function UserManagementPage({ user, username }) {
                   type="text"
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-accent"
+                  className="w-full bg-white/10 border border-white/10 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-cyan-400/50"
                   required
                   placeholder="Enter full name"
                 />
+                <p className="text-xs text-gray-500 mt-1">
+                  🔑 Username will be auto-generated: <span className="text-cyan-400">
+                    {formData.name ? formData.name.toLowerCase().replace(/\s+/g, '') : 'username'}
+                  </span>
+                </p>
               </div>
               
               <div>
@@ -308,7 +362,7 @@ export default function UserManagementPage({ user, username }) {
                   type="email"
                   value={formData.email}
                   onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                  className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-accent"
+                  className="w-full bg-white/10 border border-white/10 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-cyan-400/50"
                   required
                   placeholder="Enter email address"
                 />
@@ -319,7 +373,7 @@ export default function UserManagementPage({ user, username }) {
                 <select
                   value={formData.role}
                   onChange={(e) => setFormData({ ...formData, role: e.target.value })}
-                  className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-accent"
+                  className="w-full bg-white/10 border border-white/10 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-cyan-400/50"
                   required
                 >
                   {roleOptions.map(option => (
@@ -336,7 +390,7 @@ export default function UserManagementPage({ user, username }) {
                   type="text"
                   value={formData.employeeId}
                   onChange={(e) => setFormData({ ...formData, employeeId: e.target.value })}
-                  className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-accent"
+                  className="w-full bg-white/10 border border-white/10 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-cyan-400/50"
                   placeholder="EMP001"
                 />
               </div>
@@ -347,7 +401,7 @@ export default function UserManagementPage({ user, username }) {
                   <select
                     value={formData.shift}
                     onChange={(e) => setFormData({ ...formData, shift: e.target.value })}
-                    className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-accent"
+                    className="w-full bg-white/10 border border-white/10 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-cyan-400/50"
                     required
                   >
                     <option value="">Select Shift</option>
@@ -365,25 +419,37 @@ export default function UserManagementPage({ user, username }) {
                   type="checkbox"
                   checked={formData.isActive}
                   onChange={(e) => setFormData({ ...formData, isActive: e.target.checked })}
-                  className="w-4 h-4 accent-accent"
+                  className="w-4 h-4 accent-cyan-400"
                   id="userActive"
                 />
                 <label htmlFor="userActive" className="text-white text-sm">
                   Active User
                 </label>
               </div>
+
+              {!editingUser && (
+                <div className="bg-white/5 border border-white/10 rounded-lg p-3">
+                  <p className="text-xs text-gray-400 flex items-center gap-2">
+                    <LinkIcon size={14} className="text-cyan-400" />
+                    Access link will be: 
+                    <span className="text-cyan-400 font-mono">
+                      {BASE_URL}/{formData.name ? formData.name.toLowerCase().replace(/\s+/g, '') : 'username'}/dashboard
+                    </span>
+                  </p>
+                </div>
+              )}
               
               <div className="flex gap-3 pt-2">
                 <button
                   type="submit"
-                  className="flex-1 bg-accent hover:bg-blue-700 py-2 rounded-lg text-white font-semibold transition-colors"
+                  className="flex-1 bg-cyan-400 hover:bg-cyan-500 py-2 rounded-lg text-black font-semibold transition-all"
                 >
                   {editingUser ? 'Update User' : 'Add User'}
                 </button>
                 <button
                   type="button"
                   onClick={() => setShowModal(false)}
-                  className="flex-1 bg-gray-700 hover:bg-gray-600 py-2 rounded-lg text-white font-semibold transition-colors"
+                  className="flex-1 bg-white/10 hover:bg-white/20 py-2 rounded-lg text-white font-semibold transition-all"
                 >
                   Cancel
                 </button>
