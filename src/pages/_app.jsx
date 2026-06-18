@@ -1,17 +1,13 @@
 import { useRouter } from 'next/router';
 import { getUserByUsername, DEFAULT_USER } from '../config/users';
 import Header from '../components/layout/Header';
-import Sidebar from '../components/layout/Sidebar';
 import '../styles/globals.css';
 
 function MyApp({ Component, pageProps }) {
   const router = useRouter();
-  
-  // Get username from URL: /umair/dashboard
   const username = router.query.username || DEFAULT_USER;
   const user = getUserByUsername(username);
-  
-  // If user doesn't exist, redirect to default
+
   if (!user || !user.id) {
     if (typeof window !== 'undefined') {
       router.push(`/${DEFAULT_USER}/dashboard`);
@@ -20,14 +16,11 @@ function MyApp({ Component, pageProps }) {
   }
 
   return (
-    <div className="min-h-screen bg-primary">
+    <div className="min-h-screen bg-gradient-to-br from-[#0a0a1a] via-[#0d0d2b] to-[#1a0a2e]">
       <Header user={user} username={username} />
-      <div className="flex">
-        <Sidebar user={user} username={username} />
-        <main className="flex-1 p-6 ml-64 mt-16">
-          <Component {...pageProps} user={user} username={username} />
-        </main>
-      </div>
+      <main className="pt-20 px-4 md:px-8 max-w-7xl mx-auto">
+        <Component {...pageProps} user={user} username={username} />
+      </main>
     </div>
   );
 }
