@@ -10,8 +10,8 @@ function MyApp({ Component, pageProps }) {
   const router = useRouter();
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
-  
-  // Get username from URL (e.g., /waqar/dashboard → waqar)
+
+  // ✅ Sab se zaroori line: username URL se lo, agar nahi hai toh default (umair) lo
   const username = router.query.username || DEFAULT_USER;
 
   useEffect(() => {
@@ -19,25 +19,22 @@ function MyApp({ Component, pageProps }) {
       try {
         setLoading(true);
         console.log("🔍 Fetching user for:", username);
-        
-        // 1. Pehle config se user fetch karein (instant)
+
+        // 1. Pehle config se user fetch karein
         const configUser = getUserByUsername(username);
-        console.log("📋 Config user:", configUser);
-        
         if (configUser && configUser.id !== 'guest') {
-          // Agar config mein mil gaya toh use karein
+          console.log("✅ User found in config:", configUser.displayName);
           setUser(configUser);
           setLoading(false);
-          return;
+          return; // ✅ Agar config mein mil gaya, toh yahin ruk jao
         }
 
-        // 2. Agar config mein nahi toh Firestore se fetch karein
+        // 2. Agar config mein nahi, toh Firestore se try karein
         try {
           const userDoc = await getDoc(doc(db, 'users', username));
-          
           if (userDoc.exists()) {
             const userData = userDoc.data();
-            console.log("🔥 Firestore user:", userData);
+            console.log("✅ User found in Firestore:", userData.name);
             setUser({
               id: username,
               ...userData,
@@ -47,14 +44,14 @@ function MyApp({ Component, pageProps }) {
             return;
           }
         } catch (firestoreError) {
-          console.error("❌ Firestore error:", firestoreError);
+          console.warn("⚠️ Firestore error, using guest user:", firestoreError);
         }
 
-        // 3. Agar kuch nahi mila toh guest user use karein (NO REDIRECT)
+        // 3. Agar kuch nahi mila, toh guest user use karein (🚫 KOI REDIRECT NAHI)
         console.log("👤 Using guest user for:", username);
         setUser(USER_CONFIG.guest);
         setLoading(false);
-        
+
       } catch (error) {
         console.error('❌ Error fetching user:', error);
         setUser(USER_CONFIG.guest);
@@ -65,10 +62,9 @@ function MyApp({ Component, pageProps }) {
     if (username) {
       fetchUser();
     }
-    // ❌ REMOVE: else { router.push(`/${DEFAULT_USER}/dashboard`); }
-  }, [username]);
+    // ✅ IMPORTANT: Yahan koi redirect nahi hona chahiye
+  }, [username]); // ✅ Sirf username change hone par fetch karein
 
-  // Agar loading ho raha hai toh spinner dikhayein
   if (loading) {
     return (
       <div className="min-h-screen bg-primary flex items-center justify-center">
@@ -80,13 +76,13 @@ function MyApp({ Component, pageProps }) {
     );
   }
 
-  // Agar user nahi mila toh guest user use karein
   const currentUser = user || USER_CONFIG.guest;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#0a0a1a] via-[#0d0d2b] to-[#1a0a2e]">
       <Header user={currentUser} username={username} />
       <main className="pt-20 px-4 md:px-8 max-w-7xl mx-auto">
+        {/* ✅ Page component ko current user aur username pass karein */}
         <Component {...pageProps} user={currentUser} username={username} />
       </main>
     </div>
