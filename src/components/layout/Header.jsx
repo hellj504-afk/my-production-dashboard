@@ -7,13 +7,15 @@ import {
   Flag,
   StickyNote,
   Users,
-  User
+  User,
+  LogOut
 } from 'lucide-react';
 
 export default function Header({ user, username }) {
   const router = useRouter();
   const currentPath = router.pathname;
 
+  // ✅ Navigation items with permissions
   const navItems = [
     { name: 'Dashboard', path: `/${username}/dashboard`, icon: LayoutDashboard, permission: 'viewDashboard' },
     { name: 'Daily', path: `/${username}/daily`, icon: CalendarCheck, permission: 'viewDailyProduction' },
@@ -23,15 +25,28 @@ export default function Header({ user, username }) {
     { name: 'Users', path: `/${username}/users`, icon: Users, permission: 'manageUsers' },
   ];
 
-  const visibleItems = navItems.filter(item => user?.permissions?.[item.permission]);
+  // ✅ Sirf woh items dikhayein jin ki permission user ko hai
+  const visibleItems = navItems.filter(item => {
+    // Agar user admin hai toh sab dikhayein
+    if (user?.role === 'super_admin') return true;
+    // Warna permission check karein
+    return user?.permissions?.[item.permission] === true;
+  });
+
+  // ✅ Logout (back to user selection)
+  const handleLogout = () => {
+    router.push('/select-user');
+  };
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-black/40 backdrop-blur-xl border-b border-white/10 h-16 px-6 flex items-center justify-between">
       {/* Logo */}
       <div className="flex items-center gap-3">
-        <div className="text-2xl font-bold bg-gradient-to-r from-cyan-400 to-purple-500 bg-clip-text text-transparent">
-          🏭 Prod<span className="text-white">Dash</span>
-        </div>
+        <Link href={`/${username}/dashboard`}>
+          <div className="text-2xl font-bold bg-gradient-to-r from-cyan-400 to-purple-500 bg-clip-text text-transparent cursor-pointer">
+            🏭 Prod<span className="text-white">Dash</span>
+          </div>
+        </Link>
         <span className="text-xs text-cyan-400/60 border border-cyan-400/30 px-2 py-0.5 rounded-full">
           v1.0
         </span>
@@ -70,6 +85,13 @@ export default function Header({ user, username }) {
           <div className="w-10 h-10 rounded-full bg-gradient-to-r from-cyan-400 to-purple-500 flex items-center justify-center shadow-lg shadow-cyan-500/20">
             <User size={20} className="text-white" />
           </div>
+          <button
+            onClick={handleLogout}
+            className="text-gray-400 hover:text-white transition-colors ml-2"
+            title="Switch User"
+          >
+            <LogOut size={18} />
+          </button>
         </div>
       </div>
     </header>
