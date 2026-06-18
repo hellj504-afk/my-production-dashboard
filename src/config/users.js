@@ -35,7 +35,7 @@ export const USER_CONFIG = {
     }
   },
 
-  // 👑 ADMIN 2 - Haris (Full Access)
+  // 👑 ADMIN 2 - Haris
   haris: {
     id: "haris",
     username: "haris",
@@ -144,7 +144,7 @@ export const USER_CONFIG = {
     }
   },
 
-  // 🏭 SHORTAGE COMPLETE MARK - Amir
+  // 🏭 SHORTAGE COMPLETE - Amir
   amir: {
     id: "amir",
     username: "amir",
@@ -167,7 +167,7 @@ export const USER_CONFIG = {
       createShortage: false,
       editShortage: false,
       deleteShortage: false,
-      resolveShortage: true,     // ✅ Sirf shortage complete mark
+      resolveShortage: true,
       viewPriorities: true,
       createPriority: false,
       editPriority: false,
@@ -181,7 +181,7 @@ export const USER_CONFIG = {
     }
   },
 
-  // 🏭 SHORTAGE COMPLETE MARK - Imran
+  // 🏭 SHORTAGE COMPLETE - Imran
   imran: {
     id: "imran",
     username: "imran",
@@ -204,7 +204,7 @@ export const USER_CONFIG = {
       createShortage: false,
       editShortage: false,
       deleteShortage: false,
-      resolveShortage: true,     // ✅ Sirf shortage complete mark
+      resolveShortage: true,
       viewPriorities: true,
       createPriority: false,
       editPriority: false,
@@ -218,7 +218,7 @@ export const USER_CONFIG = {
     }
   },
 
-  // 🏭 SHORTAGE COMPLETE MARK - Riaz
+  // 🏭 SHORTAGE COMPLETE - Riaz
   riaz: {
     id: "riaz",
     username: "riaz",
@@ -241,7 +241,7 @@ export const USER_CONFIG = {
       createShortage: false,
       editShortage: false,
       deleteShortage: false,
-      resolveShortage: true,     // ✅ Sirf shortage complete mark
+      resolveShortage: true,
       viewPriorities: true,
       createPriority: false,
       editPriority: false,
@@ -255,7 +255,7 @@ export const USER_CONFIG = {
     }
   },
 
-  // 📝 ADD LIVE NOTES - Bilal Butt
+  // 📝 LIVE NOTES - Bilal Butt
   bilalbutt: {
     id: "bilalbutt",
     username: "bilalbutt",
@@ -283,8 +283,8 @@ export const USER_CONFIG = {
       editPriority: false,
       deletePriority: false,
       viewLiveNotes: true,
-      createLiveNote: true,      // ✅ Sirf live notes add
-      editLiveNote: true,        // ✅ Apni notes edit
+      createLiveNote: true,
+      editLiveNote: true,
       deleteLiveNote: false,
       manageUsers: false,
       viewAuditLog: false,
