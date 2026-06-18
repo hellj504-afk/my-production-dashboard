@@ -5,7 +5,6 @@ export default function Home() {
   const router = useRouter();
 
   useEffect(() => {
-    // ✅ Default: Guest (Viewer) dashboard
     router.replace('/guest/dashboard');
   }, [router]);
 
