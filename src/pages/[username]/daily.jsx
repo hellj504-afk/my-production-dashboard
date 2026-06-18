@@ -3,15 +3,15 @@ import {
   collection, 
   getDocs, 
   addDoc, 
-  query, 
-  where, 
-  orderBy,
-  updateDoc,
-  doc
+  updateDoc, 
+  doc,
+  query,
+  where,
+  orderBy
 } from 'firebase/firestore';
 import { db } from '../../firebase/config';
 import ProtectedComponent from '../../components/common/ProtectedComponent';
-import { Plus, Check, X } from 'lucide-react';
+import { Plus, Check, X, Package } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 export default function DailyProductionPage({ user, username }) {
@@ -19,6 +19,11 @@ export default function DailyProductionPage({ user, username }) {
   const [entries, setEntries] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
+  const [showAddProduct, setShowAddProduct] = useState(false);
+  const [newProduct, setNewProduct] = useState({
+    productName: '',
+    targetQuantity: '',
+  });
   const [formData, setFormData] = useState({
     planId: '',
     achievedQuantity: '',
@@ -34,7 +39,6 @@ export default function DailyProductionPage({ user, username }) {
 
   const fetchData = async () => {
     try {
-      // Fetch plans
       const plansSnapshot = await getDocs(collection(db, 'productionPlans'));
       const plansData = [];
       plansSnapshot.forEach((doc) => {
@@ -42,7 +46,6 @@ export default function DailyProductionPage({ user, username }) {
       });
       setPlans(plansData);
 
-      // Fetch today's entries
       const today = new Date();
       today.setHours(0, 0, 0, 0);
       
@@ -66,6 +69,30 @@ export default function DailyProductionPage({ user, username }) {
     }
   };
 
+  const addNewProduct = async () => {
+    if (!newProduct.productName || !newProduct.targetQuantity) {
+      toast.error('Please fill all fields');
+      return;
+    }
+    try {
+      await addDoc(collection(db, 'productionPlans'), {
+        productName: newProduct.productName,
+        targetQuantity: Number(newProduct.targetQuantity),
+        achievedQuantity: 0,
+        status: 'ongoing',
+        createdAt: new Date().toISOString(),
+        createdBy: username
+      });
+      toast.success('Product added successfully!');
+      setNewProduct({ productName: '', targetQuantity: '' });
+      setShowAddProduct(false);
+      fetchData();
+    } catch (error) {
+      console.error('Error adding product:', error);
+      toast.error('Failed to add product');
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
@@ -78,10 +105,8 @@ export default function DailyProductionPage({ user, username }) {
         timestamp: new Date().toISOString()
       };
 
-      // Add daily entry
       await addDoc(collection(db, 'dailyProduction'), entryData);
 
-      // Update plan's achieved quantity
       const planRef = doc(db, 'productionPlans', formData.planId);
       const plan = plans.find(p => p.id === formData.planId);
       const newAchieved = (plan.achievedQuantity || 0) + Number(formData.achievedQuantity);
@@ -128,7 +153,6 @@ export default function DailyProductionPage({ user, username }) {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-3xl font-bold text-white">📊 Daily Production</h1>
@@ -138,12 +162,66 @@ export default function DailyProductionPage({ user, username }) {
         <ProtectedComponent user={user} permission="createDailyProduction">
           <button
             onClick={() => setShowModal(true)}
-            className="bg-accent hover:bg-blue-700 px-4 py-2 rounded-lg text-white flex items-center gap-2 transition-colors"
+            className="bg-cyan-400/20 hover:bg-cyan-400/30 text-cyan-400 px-4 py-2 rounded-lg text-white flex items-center gap-2 transition-colors border border-cyan-400/30"
           >
             <Plus size={20} />
             Log Production
           </button>
         </ProtectedComponent>
+      </div>
+
+      {/* Add Product Section */}
+      <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-4">
+        <div className="flex justify-between items-center mb-3">
+          <h2 className="text-lg font-semibold text-white">📦 Products</h2>
+          <button
+            onClick={() => setShowAddProduct(!showAddProduct)}
+            className="bg-emerald-400/20 hover:bg-emerald-400/30 text-emerald-400 px-4 py-2 rounded-lg text-sm flex items-center gap-2 transition-all border border-emerald-400/30"
+          >
+            <Package size={18} /> Add Product
+          </button>
+        </div>
+
+        {showAddProduct && (
+          <div className="bg-white/5 rounded-xl p-4 mb-3">
+            <div className="flex flex-wrap gap-4">
+              <input
+                type="text"
+                placeholder="Product Name (e.g., HT CT)"
+                value={newProduct.productName}
+                onChange={(e) => setNewProduct({ ...newProduct, productName: e.target.value })}
+                className="flex-1 bg-white/10 border border-white/10 rounded-lg px-4 py-2 text-white text-sm focus:outline-none focus:border-cyan-400/50"
+              />
+              <input
+                type="number"
+                placeholder="Target Quantity"
+                value={newProduct.targetQuantity}
+                onChange={(e) => setNewProduct({ ...newProduct, targetQuantity: e.target.value })}
+                className="w-32 bg-white/10 border border-white/10 rounded-lg px-4 py-2 text-white text-sm focus:outline-none focus:border-cyan-400/50"
+              />
+              <button
+                onClick={addNewProduct}
+                className="bg-emerald-400 hover:bg-emerald-500 px-6 py-2 rounded-lg text-black font-medium transition-all"
+              >
+                Add
+              </button>
+              <button
+                onClick={() => setShowAddProduct(false)}
+                className="bg-white/10 hover:bg-white/20 px-4 py-2 rounded-lg text-gray-400 transition-all"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        )}
+
+        <div className="flex flex-wrap gap-2">
+          {plans.map((plan) => (
+            <span key={plan.id} className="bg-white/5 border border-white/10 px-3 py-1 rounded-full text-sm text-gray-300">
+              {plan.productName} ({plan.targetQuantity})
+            </span>
+          ))}
+        </div>
       </div>
 
       {/* Today's Entries */}
@@ -154,13 +232,13 @@ export default function DailyProductionPage({ user, username }) {
         </h2>
         
         {entries.length === 0 ? (
-          <div className="bg-card rounded-lg p-8 text-center">
+          <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-8 text-center">
             <p className="text-gray-400">No entries logged today</p>
           </div>
         ) : (
           <div className="space-y-3">
             {entries.map((entry) => (
-              <div key={entry.id} className="bg-card rounded-lg p-4 shadow-lg">
+              <div key={entry.id} className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-4 shadow-lg">
                 <div className="flex flex-wrap justify-between items-start gap-3">
                   <div className="flex-1">
                     <div className="flex items-center gap-3">
@@ -175,7 +253,7 @@ export default function DailyProductionPage({ user, username }) {
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-2">
                       <div>
                         <p className="text-xs text-gray-400">Quantity</p>
-                        <p className="text-green-400 font-semibold">{entry.achievedQuantity}</p>
+                        <p className="text-emerald-400 font-semibold">{entry.achievedQuantity}</p>
                       </div>
                       <div>
                         <p className="text-xs text-gray-400">Operator</p>
@@ -213,7 +291,7 @@ export default function DailyProductionPage({ user, username }) {
       {/* Modal */}
       {showModal && (
         <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
-          <div className="bg-card rounded-lg p-6 max-w-md w-full">
+          <div className="bg-[#0d0d2b] rounded-2xl p-6 max-w-md w-full border border-white/10">
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-2xl font-bold text-white">Log Production</h2>
               <button
@@ -230,7 +308,7 @@ export default function DailyProductionPage({ user, username }) {
                 <select
                   value={formData.planId}
                   onChange={(e) => setFormData({ ...formData, planId: e.target.value })}
-                  className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-accent"
+                  className="w-full bg-white/10 border border-white/10 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-cyan-400/50"
                   required
                 >
                   <option value="">Select Product</option>
@@ -248,7 +326,7 @@ export default function DailyProductionPage({ user, username }) {
                   type="number"
                   value={formData.achievedQuantity}
                   onChange={(e) => setFormData({ ...formData, achievedQuantity: e.target.value })}
-                  className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-accent"
+                  className="w-full bg-white/10 border border-white/10 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-cyan-400/50"
                   required
                   min="1"
                 />
@@ -259,7 +337,7 @@ export default function DailyProductionPage({ user, username }) {
                 <select
                   value={formData.shift}
                   onChange={(e) => setFormData({ ...formData, shift: e.target.value })}
-                  className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-accent"
+                  className="w-full bg-white/10 border border-white/10 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-cyan-400/50"
                 >
                   <option value="morning">Morning (6AM - 2PM)</option>
                   <option value="evening">Evening (2PM - 10PM)</option>
@@ -273,7 +351,7 @@ export default function DailyProductionPage({ user, username }) {
                   type="text"
                   value={formData.operator}
                   onChange={(e) => setFormData({ ...formData, operator: e.target.value })}
-                  className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-accent"
+                  className="w-full bg-white/10 border border-white/10 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-cyan-400/50"
                   placeholder="Enter operator name"
                 />
               </div>
@@ -284,7 +362,7 @@ export default function DailyProductionPage({ user, username }) {
                   type="text"
                   value={formData.machineUsed}
                   onChange={(e) => setFormData({ ...formData, machineUsed: e.target.value })}
-                  className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-accent"
+                  className="w-full bg-white/10 border border-white/10 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-cyan-400/50"
                   placeholder="Enter machine name"
                 />
               </div>
@@ -294,7 +372,7 @@ export default function DailyProductionPage({ user, username }) {
                 <textarea
                   value={formData.notes}
                   onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
-                  className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-accent"
+                  className="w-full bg-white/10 border border-white/10 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-cyan-400/50"
                   rows="2"
                   placeholder="Any remarks..."
                 />
@@ -303,7 +381,7 @@ export default function DailyProductionPage({ user, username }) {
               <div className="flex gap-3 pt-2">
                 <button
                   type="submit"
-                  className="flex-1 bg-accent hover:bg-blue-700 py-2 rounded-lg text-white font-semibold transition-colors"
+                  className="flex-1 bg-cyan-400 hover:bg-cyan-500 py-2 rounded-lg text-black font-semibold transition-all"
                 >
                   <Check size={18} className="inline mr-1" />
                   Submit
@@ -311,7 +389,7 @@ export default function DailyProductionPage({ user, username }) {
                 <button
                   type="button"
                   onClick={() => setShowModal(false)}
-                  className="flex-1 bg-gray-700 hover:bg-gray-600 py-2 rounded-lg text-white font-semibold transition-colors"
+                  className="flex-1 bg-white/10 hover:bg-white/20 py-2 rounded-lg text-white font-semibold transition-all"
                 >
                   Cancel
                 </button>
