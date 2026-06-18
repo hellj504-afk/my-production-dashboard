@@ -11,27 +11,21 @@ function MyApp({ Component, pageProps }) {
   const [username, setUsername] = useState('guest');
 
   useEffect(() => {
-    // ✅ Sab se simple: URL se username nikaalo
     const getUsernameFromURL = () => {
       if (typeof window === 'undefined') return 'guest';
       
-      // Option 1: Path se lein
+      // Path se username lein (e.g., /waqar/dashboard → waqar)
       const path = window.location.pathname;
       const parts = path.split('/').filter(Boolean);
       if (parts.length > 0) {
         const possibleUser = parts[0];
-        // Check if user exists in config
+        // Agar config mein hai toh return karein
         if (USER_CONFIG[possibleUser]) {
           return possibleUser;
         }
       }
       
-      // Option 2: Hash se lein (fallback)
-      const hash = window.location.hash.replace('#', '');
-      if (hash && USER_CONFIG[hash]) {
-        return hash;
-      }
-      
+      // ✅ Default: guest (viewer)
       return 'guest';
     };
 
@@ -68,7 +62,7 @@ function MyApp({ Component, pageProps }) {
           console.warn("Firestore error:", e);
         }
 
-        // Guest user
+        // ✅ Guest user (Viewer)
         setUser(USER_CONFIG.guest);
         setLoading(false);
       } catch (error) {
