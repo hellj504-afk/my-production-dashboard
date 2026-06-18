@@ -2,9 +2,11 @@ export const USER_CONFIG = {
   // 👑 SUPER ADMIN - Full Access
   umair: {
     id: "umair",
+    username: "umair",
     name: "Muhammad Umair",
     role: "super_admin",
     displayName: "👑 Umair (Admin)",
+    accessLink: "https://my-production-dashboard.vercel.app/umair/dashboard",
     permissions: {
       viewDashboard: true,
       viewPlans: true,
@@ -33,12 +35,14 @@ export const USER_CONFIG = {
     }
   },
 
-  // 📋 PRODUCTION PLANNER
+  // 📋 PRODUCTION PLANNER - 1 Person
   usman: {
     id: "usman",
+    username: "usman",
     name: "Usman Ahmed",
     role: "production_planner",
     displayName: "📋 Usman (Planner)",
+    accessLink: "https://my-production-dashboard.vercel.app/usman/dashboard",
     permissions: {
       viewDashboard: true,
       viewPlans: true,
@@ -67,13 +71,15 @@ export const USER_CONFIG = {
     }
   },
 
-  // 🏭 FLOOR SUPERVISOR 1
+  // 🏭 FLOOR SUPERVISOR 1 - Morning Shift
   rizwan: {
     id: "rizwan",
+    username: "rizwan",
     name: "Rizwan Ali",
     role: "floor_supervisor",
     displayName: "🏭 Rizwan (Supervisor - Morning)",
     shift: "morning",
+    accessLink: "https://my-production-dashboard.vercel.app/rizwan/dashboard",
     permissions: {
       viewDashboard: true,
       viewPlans: true,
@@ -102,13 +108,15 @@ export const USER_CONFIG = {
     }
   },
 
-  // 🏭 FLOOR SUPERVISOR 2
+  // 🏭 FLOOR SUPERVISOR 2 - Evening Shift
   ahmed: {
     id: "ahmed",
+    username: "ahmed",
     name: "Ahmed Hassan",
     role: "floor_supervisor",
     displayName: "🏭 Ahmed (Supervisor - Evening)",
     shift: "evening",
+    accessLink: "https://my-production-dashboard.vercel.app/ahmed/dashboard",
     permissions: {
       viewDashboard: true,
       viewPlans: true,
@@ -137,12 +145,14 @@ export const USER_CONFIG = {
     }
   },
 
-  // 👀 VIEWER
+  // 👀 VIEWER - Read Only
   guest: {
     id: "guest",
+    username: "guest",
     name: "Guest User",
     role: "viewer",
     displayName: "👀 Guest (Viewer)",
+    accessLink: "https://my-production-dashboard.vercel.app/guest/dashboard",
     permissions: {
       viewDashboard: true,
       viewPlans: true,
@@ -172,13 +182,16 @@ export const USER_CONFIG = {
   }
 };
 
+// Get user by username
 export const getUserByUsername = (username) => {
   return USER_CONFIG[username] || USER_CONFIG.guest;
 };
 
+// Check if user has specific permission
 export const hasPermission = (username, permission) => {
   const user = getUserByUsername(username);
   return user?.permissions?.[permission] || false;
 };
 
+// Default user (redirect if no username provided)
 export const DEFAULT_USER = "umair";
