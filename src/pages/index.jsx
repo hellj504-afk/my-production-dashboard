@@ -1,13 +1,12 @@
 import { useEffect } from 'react';
 import { useRouter } from 'next/router';
-import { DEFAULT_USER } from '../config/users';
 
 export default function Home() {
   const router = useRouter();
 
   useEffect(() => {
-    // ✅ Sirf root URL (/) par redirect karein
-    router.replace(`/${DEFAULT_USER}/dashboard`);
+    // ✅ Sirf root URL (/) par redirect
+    router.replace('/umair/dashboard');
   }, [router]);
 
   return (
