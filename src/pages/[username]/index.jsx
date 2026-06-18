@@ -21,23 +21,19 @@ export default function DashboardPage({ user, username }) {
       console.log("Fetching plans from Firebase...");
       
       const querySnapshot = await getDocs(collection(db, 'productionPlans'));
-      console.log("Query snapshot size:", querySnapshot.size);
-      
       const data = [];
       querySnapshot.forEach((doc) => {
         data.push({ id: doc.id, ...doc.data() });
       });
       
-      console.log("Data fetched:", data);
       setPlans(data);
-      
       if (data.length === 0) {
-        toast('No plans found. Create your first plan!', { icon: 'ℹ️' });
+        toast('No plans found!');
       }
     } catch (error) {
-      console.error('Error fetching plans:', error);
+      console.error('Error:', error);
       setError(error.message);
-      toast.error('Failed to load plans: ' + error.message);
+      toast.error('Failed to load plans');
     } finally {
       setLoading(false);
     }
@@ -53,7 +49,6 @@ export default function DashboardPage({ user, username }) {
         <div className="text-center">
           <div className="w-16 h-16 border-4 border-accent border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
           <p className="text-white text-lg">Loading dashboard...</p>
-          <p className="text-gray-400 text-sm mt-2">Fetching production plans...</p>
         </div>
       </div>
     );
@@ -66,13 +61,10 @@ export default function DashboardPage({ user, username }) {
         <p className="text-gray-300 mt-2">{error}</p>
         <button 
           onClick={fetchPlans}
-          className="mt-4 bg-accent hover:bg-blue-700 px-6 py-2 rounded-lg text-white transition-colors"
+          className="mt-4 bg-accent hover:bg-blue-700 px-6 py-2 rounded-lg text-white"
         >
           Retry
         </button>
-        <p className="text-gray-400 text-sm mt-4">
-          Make sure Firebase is configured correctly and collections exist.
-        </p>
       </div>
     );
   }
@@ -85,7 +77,6 @@ export default function DashboardPage({ user, username }) {
           <p className="text-gray-400 text-sm mt-1">
             {new Date().toLocaleString('default', { month: 'long', year: 'numeric' })} - Day {new Date().getDate()}
           </p>
-          <p className="text-xs text-gray-500 mt-1">Total Plans: {plans.length}</p>
         </div>
         <div className="text-right">
           <p className="text-sm text-gray-400">Welcome back,</p>
@@ -102,7 +93,7 @@ export default function DashboardPage({ user, username }) {
       {plans.length === 0 ? (
         <div className="bg-card rounded-lg p-8 text-center">
           <p className="text-gray-400">No production plans found.</p>
-          <p className="text-gray-500 text-sm mt-2">Add your first plan in the "Production Plans" tab.</p>
+          <p className="text-gray-500 text-sm mt-2">Create your first plan in "Production Plans" tab.</p>
         </div>
       ) : (
         <ProductGrid products={plans} />
