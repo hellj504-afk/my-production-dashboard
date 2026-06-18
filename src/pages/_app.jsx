@@ -41,33 +41,7 @@ function MyApp({ Component, pageProps }) {
             setUser({
               id: username,
               ...userData,
-              // Permissions Firestore se lein, agar nahi toh default viewer
-              permissions: userData.permissions || {
-                viewDashboard: true,
-                viewPlans: false,
-                createPlan: false,
-                editPlan: false,
-                deletePlan: false,
-                viewDailyProduction: false,
-                createDailyProduction: false,
-                editDailyProduction: false,
-                deleteDailyProduction: false,
-                viewShortages: false,
-                createShortage: false,
-                editShortage: false,
-                deleteShortage: false,
-                resolveShortage: false,
-                viewPriorities: false,
-                createPriority: false,
-                editPriority: false,
-                deletePriority: false,
-                viewLiveNotes: false,
-                createLiveNote: false,
-                editLiveNote: false,
-                deleteLiveNote: false,
-                manageUsers: false,
-                viewAuditLog: false,
-              }
+              permissions: userData.permissions || USER_CONFIG.guest.permissions
             });
             setLoading(false);
             return;
@@ -76,8 +50,8 @@ function MyApp({ Component, pageProps }) {
           console.error("❌ Firestore error:", firestoreError);
         }
 
-        // 3. Agar kuch nahi mila toh guest user use karein
-        console.log("👤 Using guest user");
+        // 3. Agar kuch nahi mila toh guest user use karein (NO REDIRECT)
+        console.log("👤 Using guest user for:", username);
         setUser(USER_CONFIG.guest);
         setLoading(false);
         
@@ -91,6 +65,7 @@ function MyApp({ Component, pageProps }) {
     if (username) {
       fetchUser();
     }
+    // ❌ REMOVE: else { router.push(`/${DEFAULT_USER}/dashboard`); }
   }, [username]);
 
   // Agar loading ho raha hai toh spinner dikhayein
