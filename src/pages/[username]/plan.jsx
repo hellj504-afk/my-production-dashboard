@@ -15,6 +15,7 @@ import toast from 'react-hot-toast';
 export default function ProductionPlansPage({ user, username }) {
   const [plans, setPlans] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [editingPlan, setEditingPlan] = useState(null);
   const [formData, setFormData] = useState({
@@ -35,14 +36,21 @@ export default function ProductionPlansPage({ user, username }) {
 
   const fetchPlans = async () => {
     try {
+      setLoading(true);
+      setError(null);
+      console.log("🔄 Fetching plans...");
+      
       const querySnapshot = await getDocs(collection(db, 'productionPlans'));
       const data = [];
       querySnapshot.forEach((doc) => {
         data.push({ id: doc.id, ...doc.data() });
       });
+      
+      console.log("✅ Plans fetched:", data);
       setPlans(data);
     } catch (error) {
-      console.error('Error fetching plans:', error);
+      console.error('❌ Error:', error);
+      setError(error.message);
       toast.error('Failed to load plans');
     } finally {
       setLoading(false);
@@ -112,7 +120,29 @@ export default function ProductionPlansPage({ user, username }) {
   };
 
   if (loading) {
-    return <div className="text-white text-center py-20">Loading plans...</div>;
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="text-center">
+          <div className="w-16 h-16 border-4 border-accent border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-white text-lg">Loading plans...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="bg-red-900/20 border border-red-500 rounded-lg p-8 text-center">
+        <h2 className="text-2xl font-bold text-red-400">⚠️ Error</h2>
+        <p className="text-gray-300 mt-2">{error}</p>
+        <button 
+          onClick={fetchPlans}
+          className="mt-4 bg-accent hover:bg-blue-700 px-6 py-2 rounded-lg text-white"
+        >
+          Retry
+        </button>
+      </div>
+    );
   }
 
   return (
@@ -121,6 +151,7 @@ export default function ProductionPlansPage({ user, username }) {
         <div>
           <h1 className="text-3xl font-bold text-white">📋 Production Plans</h1>
           <p className="text-gray-400 text-sm mt-1">Manage all production plans</p>
+          <p className="text-xs text-gray-500 mt-1">Total Plans: {plans.length}</p>
         </div>
         
         <ProtectedComponent user={user} permission="createPlan">
@@ -138,13 +169,14 @@ export default function ProductionPlansPage({ user, username }) {
         </ProtectedComponent>
       </div>
 
-      <div className="grid grid-cols-1 gap-4">
-        {plans.length === 0 ? (
-          <div className="bg-card rounded-lg p-8 text-center">
-            <p className="text-gray-400">No plans found. Create your first plan!</p>
-          </div>
-        ) : (
-          plans.map((plan) => {
+      {plans.length === 0 ? (
+        <div className="bg-card rounded-lg p-8 text-center">
+          <p className="text-gray-400 text-lg">📭 No plans found</p>
+          <p className="text-gray-500 text-sm mt-2">Click "Create New Plan" to add your first plan</p>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 gap-4">
+          {plans.map((plan) => {
             const progress = plan.targetQuantity > 0 
               ? ((plan.achievedQuantity / plan.targetQuantity) * 100).toFixed(1) 
               : 0;
@@ -215,9 +247,9 @@ export default function ProductionPlansPage({ user, username }) {
                 </div>
               </div>
             );
-          })
-        )}
-      </div>
+          })}
+        </div>
+      )}
 
       {/* Modal */}
       {showModal && (
