@@ -18,22 +18,31 @@ export default function DashboardPage({ user, username }) {
     try {
       setLoading(true);
       setError(null);
-      console.log("Fetching plans from Firebase...");
+      console.log("🔄 Fetching plans from Firebase...");
+      
+      // Check if Firebase is initialized
+      if (!db) {
+        throw new Error("Firebase not initialized");
+      }
       
       const querySnapshot = await getDocs(collection(db, 'productionPlans'));
+      console.log("✅ Query successful, size:", querySnapshot.size);
+      
       const data = [];
       querySnapshot.forEach((doc) => {
         data.push({ id: doc.id, ...doc.data() });
       });
       
+      console.log("📦 Data fetched:", data);
       setPlans(data);
+      
       if (data.length === 0) {
-        toast('No plans found!');
+        toast('ℹ️ No plans found. Create your first plan!');
       }
     } catch (error) {
-      console.error('Error:', error);
+      console.error('❌ Error fetching plans:', error);
       setError(error.message);
-      toast.error('Failed to load plans');
+      toast.error('Failed to load plans: ' + error.message);
     } finally {
       setLoading(false);
     }
@@ -43,27 +52,30 @@ export default function DashboardPage({ user, username }) {
   const totalAchieved = plans.reduce((sum, item) => sum + (item.achievedQuantity || 0), 0);
   const avgProgress = totalPlan > 0 ? ((totalAchieved / totalPlan) * 100).toFixed(1) : 0;
 
+  // Loading State
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
         <div className="text-center">
           <div className="w-16 h-16 border-4 border-accent border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
           <p className="text-white text-lg">Loading dashboard...</p>
+          <p className="text-gray-400 text-sm mt-2">Fetching production plans...</p>
         </div>
       </div>
     );
   }
 
+  // Error State
   if (error) {
     return (
       <div className="bg-red-900/20 border border-red-500 rounded-lg p-8 text-center">
-        <h2 className="text-2xl font-bold text-red-400">⚠️ Error Loading Data</h2>
+        <h2 className="text-2xl font-bold text-red-400">⚠️ Connection Error</h2>
         <p className="text-gray-300 mt-2">{error}</p>
         <button 
           onClick={fetchPlans}
-          className="mt-4 bg-accent hover:bg-blue-700 px-6 py-2 rounded-lg text-white"
+          className="mt-4 bg-accent hover:bg-blue-700 px-6 py-2 rounded-lg text-white transition-colors"
         >
-          Retry
+          🔄 Retry
         </button>
       </div>
     );
@@ -77,6 +89,7 @@ export default function DashboardPage({ user, username }) {
           <p className="text-gray-400 text-sm mt-1">
             {new Date().toLocaleString('default', { month: 'long', year: 'numeric' })} - Day {new Date().getDate()}
           </p>
+          <p className="text-xs text-gray-500 mt-1">📊 Total Plans: {plans.length}</p>
         </div>
         <div className="text-right">
           <p className="text-sm text-gray-400">Welcome back,</p>
@@ -92,8 +105,8 @@ export default function DashboardPage({ user, username }) {
 
       {plans.length === 0 ? (
         <div className="bg-card rounded-lg p-8 text-center">
-          <p className="text-gray-400">No production plans found.</p>
-          <p className="text-gray-500 text-sm mt-2">Create your first plan in "Production Plans" tab.</p>
+          <p className="text-gray-400 text-lg">📭 No production plans found</p>
+          <p className="text-gray-500 text-sm mt-2">Go to "Production Plans" tab to create your first plan</p>
         </div>
       ) : (
         <ProductGrid products={plans} />
