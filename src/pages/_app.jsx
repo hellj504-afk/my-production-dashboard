@@ -14,18 +14,15 @@ function MyApp({ Component, pageProps }) {
     const getUsernameFromURL = () => {
       if (typeof window === 'undefined') return 'guest';
       
-      // Path se username lein (e.g., /waqar/dashboard → waqar)
       const path = window.location.pathname;
       const parts = path.split('/').filter(Boolean);
       if (parts.length > 0) {
         const possibleUser = parts[0];
-        // Agar config mein hai toh return karein
         if (USER_CONFIG[possibleUser]) {
           return possibleUser;
         }
       }
       
-      // ✅ Default: guest (viewer)
       return 'guest';
     };
 
@@ -37,7 +34,6 @@ function MyApp({ Component, pageProps }) {
         
         console.log("🔍 Fetching user for:", userSlug);
         
-        // Config se user lein
         const configUser = getUserByUsername(userSlug);
         if (configUser && configUser.id !== 'guest') {
           setUser(configUser);
@@ -45,7 +41,6 @@ function MyApp({ Component, pageProps }) {
           return;
         }
 
-        // Firestore se try karein
         try {
           const userDoc = await getDoc(doc(db, 'users', userSlug));
           if (userDoc.exists()) {
@@ -62,7 +57,6 @@ function MyApp({ Component, pageProps }) {
           console.warn("Firestore error:", e);
         }
 
-        // ✅ Guest user (Viewer)
         setUser(USER_CONFIG.guest);
         setLoading(false);
       } catch (error) {
