@@ -35,14 +35,50 @@ export const USER_CONFIG = {
     }
   },
 
-  // 📋 PRODUCTION PLANNER
-  usman: {
-    id: "usman",
-    username: "usman",
-    name: "Usman Ahmed",
+  // 👑 ADMIN 2 - Haris (Full Access)
+  haris: {
+    id: "haris",
+    username: "haris",
+    name: "Haris",
+    role: "super_admin",
+    displayName: "👑 Haris (Admin)",
+    accessLink: "https://my-production-dashboard.vercel.app/haris/dashboard",
+    permissions: {
+      viewDashboard: true,
+      viewPlans: true,
+      createPlan: true,
+      editPlan: true,
+      deletePlan: true,
+      viewDailyProduction: true,
+      createDailyProduction: true,
+      editDailyProduction: true,
+      deleteDailyProduction: true,
+      viewShortages: true,
+      createShortage: true,
+      editShortage: true,
+      deleteShortage: true,
+      resolveShortage: true,
+      viewPriorities: true,
+      createPriority: true,
+      editPriority: true,
+      deletePriority: true,
+      viewLiveNotes: true,
+      createLiveNote: true,
+      editLiveNote: true,
+      deleteLiveNote: true,
+      manageUsers: true,
+      viewAuditLog: true,
+    }
+  },
+
+  // 📋 PRODUCTION PLANNER - Shaveel
+  shaveel: {
+    id: "shaveel",
+    username: "shaveel",
+    name: "Shaveel",
     role: "production_planner",
-    displayName: "📋 Usman (Planner)",
-    accessLink: "https://my-production-dashboard.vercel.app/usman/dashboard",
+    displayName: "📋 Shaveel (Planner)",
+    accessLink: "https://my-production-dashboard.vercel.app/shaveel/dashboard",
     permissions: {
       viewDashboard: true,
       viewPlans: true,
@@ -71,15 +107,15 @@ export const USER_CONFIG = {
     }
   },
 
-  // 🏭 FLOOR SUPERVISOR 1
-  rizwan: {
-    id: "rizwan",
-    username: "rizwan",
-    name: "Rizwan Ali",
+  // 🏭 FLOOR SUPERVISOR - Rashid
+  rashid: {
+    id: "rashid",
+    username: "rashid",
+    name: "Rashid",
     role: "floor_supervisor",
-    displayName: "🏭 Rizwan (Supervisor - Morning)",
+    displayName: "🏭 Rashid (Supervisor)",
     shift: "morning",
-    accessLink: "https://my-production-dashboard.vercel.app/rizwan/dashboard",
+    accessLink: "https://my-production-dashboard.vercel.app/rashid/dashboard",
     permissions: {
       viewDashboard: true,
       viewPlans: true,
@@ -108,15 +144,15 @@ export const USER_CONFIG = {
     }
   },
 
-  // 🏭 FLOOR SUPERVISOR 2
-  ahmed: {
-    id: "ahmed",
-    username: "ahmed",
-    name: "Ahmed Hassan",
+  // 🏭 SHORTAGE COMPLETE MARK - Amir
+  amir: {
+    id: "amir",
+    username: "amir",
+    name: "Amir",
     role: "floor_supervisor",
-    displayName: "🏭 Ahmed (Supervisor - Evening)",
+    displayName: "🏭 Amir (Shortage Complete)",
     shift: "evening",
-    accessLink: "https://my-production-dashboard.vercel.app/ahmed/dashboard",
+    accessLink: "https://my-production-dashboard.vercel.app/amir/dashboard",
     permissions: {
       viewDashboard: true,
       viewPlans: true,
@@ -131,7 +167,7 @@ export const USER_CONFIG = {
       createShortage: false,
       editShortage: false,
       deleteShortage: false,
-      resolveShortage: true,
+      resolveShortage: true,     // ✅ Sirf shortage complete mark
       viewPriorities: true,
       createPriority: false,
       editPriority: false,
@@ -145,7 +181,189 @@ export const USER_CONFIG = {
     }
   },
 
-  // 👀 VIEWER - Read Only
+  // 🏭 SHORTAGE COMPLETE MARK - Imran
+  imran: {
+    id: "imran",
+    username: "imran",
+    name: "Imran",
+    role: "floor_supervisor",
+    displayName: "🏭 Imran (Shortage Complete)",
+    shift: "night",
+    accessLink: "https://my-production-dashboard.vercel.app/imran/dashboard",
+    permissions: {
+      viewDashboard: true,
+      viewPlans: true,
+      createPlan: false,
+      editPlan: false,
+      deletePlan: false,
+      viewDailyProduction: true,
+      createDailyProduction: true,
+      editDailyProduction: true,
+      deleteDailyProduction: false,
+      viewShortages: true,
+      createShortage: false,
+      editShortage: false,
+      deleteShortage: false,
+      resolveShortage: true,     // ✅ Sirf shortage complete mark
+      viewPriorities: true,
+      createPriority: false,
+      editPriority: false,
+      deletePriority: false,
+      viewLiveNotes: true,
+      createLiveNote: false,
+      editLiveNote: false,
+      deleteLiveNote: false,
+      manageUsers: false,
+      viewAuditLog: false,
+    }
+  },
+
+  // 🏭 SHORTAGE COMPLETE MARK - Riaz
+  riaz: {
+    id: "riaz",
+    username: "riaz",
+    name: "Riaz",
+    role: "floor_supervisor",
+    displayName: "🏭 Riaz (Shortage Complete)",
+    shift: "morning",
+    accessLink: "https://my-production-dashboard.vercel.app/riaz/dashboard",
+    permissions: {
+      viewDashboard: true,
+      viewPlans: true,
+      createPlan: false,
+      editPlan: false,
+      deletePlan: false,
+      viewDailyProduction: true,
+      createDailyProduction: true,
+      editDailyProduction: true,
+      deleteDailyProduction: false,
+      viewShortages: true,
+      createShortage: false,
+      editShortage: false,
+      deleteShortage: false,
+      resolveShortage: true,     // ✅ Sirf shortage complete mark
+      viewPriorities: true,
+      createPriority: false,
+      editPriority: false,
+      deletePriority: false,
+      viewLiveNotes: true,
+      createLiveNote: false,
+      editLiveNote: false,
+      deleteLiveNote: false,
+      manageUsers: false,
+      viewAuditLog: false,
+    }
+  },
+
+  // 📝 ADD LIVE NOTES - Bilal Butt
+  bilalbutt: {
+    id: "bilalbutt",
+    username: "bilalbutt",
+    name: "Bilal Butt",
+    role: "production_planner",
+    displayName: "📝 Bilal Butt (Live Notes)",
+    accessLink: "https://my-production-dashboard.vercel.app/bilalbutt/dashboard",
+    permissions: {
+      viewDashboard: true,
+      viewPlans: true,
+      createPlan: false,
+      editPlan: false,
+      deletePlan: false,
+      viewDailyProduction: true,
+      createDailyProduction: true,
+      editDailyProduction: true,
+      deleteDailyProduction: false,
+      viewShortages: true,
+      createShortage: false,
+      editShortage: false,
+      deleteShortage: false,
+      resolveShortage: false,
+      viewPriorities: true,
+      createPriority: false,
+      editPriority: false,
+      deletePriority: false,
+      viewLiveNotes: true,
+      createLiveNote: true,      // ✅ Sirf live notes add
+      editLiveNote: true,        // ✅ Apni notes edit
+      deleteLiveNote: false,
+      manageUsers: false,
+      viewAuditLog: false,
+    }
+  },
+
+  // 👀 VIEWER - Waqar
+  waqar: {
+    id: "waqar",
+    username: "waqar",
+    name: "Waqar",
+    role: "viewer",
+    displayName: "👀 Waqar (Viewer)",
+    accessLink: "https://my-production-dashboard.vercel.app/waqar/dashboard",
+    permissions: {
+      viewDashboard: true,
+      viewPlans: true,
+      createPlan: false,
+      editPlan: false,
+      deletePlan: false,
+      viewDailyProduction: true,
+      createDailyProduction: false,
+      editDailyProduction: false,
+      deleteDailyProduction: false,
+      viewShortages: true,
+      createShortage: false,
+      editShortage: false,
+      deleteShortage: false,
+      resolveShortage: false,
+      viewPriorities: true,
+      createPriority: false,
+      editPriority: false,
+      deletePriority: false,
+      viewLiveNotes: true,
+      createLiveNote: false,
+      editLiveNote: false,
+      deleteLiveNote: false,
+      manageUsers: false,
+      viewAuditLog: false,
+    }
+  },
+
+  // 👀 VIEWER - Ali Akbar
+  aliakbar: {
+    id: "aliakbar",
+    username: "aliakbar",
+    name: "Ali Akbar",
+    role: "viewer",
+    displayName: "👀 Ali Akbar (Viewer)",
+    accessLink: "https://my-production-dashboard.vercel.app/aliakbar/dashboard",
+    permissions: {
+      viewDashboard: true,
+      viewPlans: true,
+      createPlan: false,
+      editPlan: false,
+      deletePlan: false,
+      viewDailyProduction: true,
+      createDailyProduction: false,
+      editDailyProduction: false,
+      deleteDailyProduction: false,
+      viewShortages: true,
+      createShortage: false,
+      editShortage: false,
+      deleteShortage: false,
+      resolveShortage: false,
+      viewPriorities: true,
+      createPriority: false,
+      editPriority: false,
+      deletePriority: false,
+      viewLiveNotes: true,
+      createLiveNote: false,
+      editLiveNote: false,
+      deleteLiveNote: false,
+      manageUsers: false,
+      viewAuditLog: false,
+    }
+  },
+
+  // 👀 VIEWER - Guest (Default)
   guest: {
     id: "guest",
     username: "guest",
