@@ -1,33 +1,73 @@
-import { Bell, User } from 'lucide-react';
+import Link from 'next/link';
+import { useRouter } from 'next/router';
+import { 
+  LayoutDashboard, 
+  CalendarCheck, 
+  AlertTriangle, 
+  Flag,
+  StickyNote,
+  Users,
+  User
+} from 'lucide-react';
 
 export default function Header({ user, username }) {
+  const router = useRouter();
+  const currentPath = router.pathname;
+
+  const navItems = [
+    { name: 'Dashboard', path: `/${username}/dashboard`, icon: LayoutDashboard, permission: 'viewDashboard' },
+    { name: 'Daily', path: `/${username}/daily`, icon: CalendarCheck, permission: 'viewDailyProduction' },
+    { name: 'Shortages', path: `/${username}/shortages`, icon: AlertTriangle, permission: 'viewShortages' },
+    { name: 'Priorities', path: `/${username}/priorities`, icon: Flag, permission: 'viewPriorities' },
+    { name: 'Notes', path: `/${username}/notes`, icon: StickyNote, permission: 'viewLiveNotes' },
+    { name: 'Users', path: `/${username}/users`, icon: Users, permission: 'manageUsers' },
+  ];
+
+  const visibleItems = navItems.filter(item => user.permissions[item.permission]);
+
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 bg-secondary border-b border-gray-700 h-16 px-6 flex items-center justify-between">
+    <header className="fixed top-0 left-0 right-0 z-50 bg-black/40 backdrop-blur-xl border-b border-white/10 h-16 px-6 flex items-center justify-between">
+      {/* Logo */}
       <div className="flex items-center gap-3">
-        <h1 className="text-xl font-bold text-white">
-          🏭 Production Dashboard
-        </h1>
-        <span className="text-xs bg-accent px-2 py-1 rounded text-gray-300">
+        <div className="text-2xl font-bold bg-gradient-to-r from-cyan-400 to-purple-500 bg-clip-text text-transparent">
+          🏭 Prod<span className="text-white">Dash</span>
+        </div>
+        <span className="text-xs text-cyan-400/60 border border-cyan-400/30 px-2 py-0.5 rounded-full">
           v1.0
         </span>
       </div>
-      
-      <div className="flex items-center gap-6">
-        <div className="flex items-center gap-2">
-          <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
-          <span className="text-xs text-gray-400">Live</span>
-        </div>
-        
-        <button className="text-gray-400 hover:text-white transition-colors">
-          <Bell size={20} />
-        </button>
-        
+
+      {/* Navigation Links */}
+      <nav className="hidden md:flex items-center gap-1">
+        {visibleItems.map((item) => {
+          const Icon = item.icon;
+          const isActive = currentPath === item.path || currentPath.includes(item.path.split('/').pop());
+          
+          return (
+            <Link
+              key={item.path}
+              href={item.path}
+              className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${
+                isActive 
+                  ? 'bg-cyan-500/20 text-cyan-400 shadow-lg shadow-cyan-500/20 border border-cyan-400/30' 
+                  : 'text-gray-400 hover:text-white hover:bg-white/5'
+              }`}
+            >
+              <Icon size={18} />
+              {item.name}
+            </Link>
+          );
+        })}
+      </nav>
+
+      {/* User Info */}
+      <div className="flex items-center gap-4">
         <div className="flex items-center gap-3">
-          <div className="text-right">
+          <div className="text-right hidden sm:block">
             <p className="text-sm font-semibold text-white">{user.displayName}</p>
-            <p className="text-xs text-gray-400">@{username}</p>
+            <p className="text-xs text-cyan-400/60">@{username}</p>
           </div>
-          <div className="w-10 h-10 rounded-full bg-accent flex items-center justify-center">
+          <div className="w-10 h-10 rounded-full bg-gradient-to-r from-cyan-400 to-purple-500 flex items-center justify-center shadow-lg shadow-cyan-500/20">
             <User size={20} className="text-white" />
           </div>
         </div>
