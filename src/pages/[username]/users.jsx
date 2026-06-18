@@ -25,6 +25,17 @@ export default function UserManagementPage({ user, username }) {
     isActive: true
   });
 
+  // ✅ SIRF ADMIN ACCESS
+  if (user?.role !== 'super_admin') {
+    return (
+      <div className="bg-red-900/20 border border-red-500 rounded-lg p-8 text-center">
+        <AlertCircle className="text-red-400 mx-auto mb-3" size={48} />
+        <h2 className="text-2xl font-bold text-red-400">⛔ Access Denied</h2>
+        <p className="text-gray-400 mt-2">Only Super Admin can manage users.</p>
+      </div>
+    );
+  }
+
   const roleOptions = [
     { value: 'production_planner', label: '📋 Production Planner' },
     { value: 'floor_supervisor', label: '🏭 Floor Supervisor' },
@@ -71,7 +82,6 @@ export default function UserManagementPage({ user, username }) {
         return;
       }
 
-      // Agar Super Admin checkbox checked hai toh role set karein
       let finalRole = formData.role;
       if (formData.isSuperAdmin) {
         finalRole = 'super_admin';
@@ -89,7 +99,6 @@ export default function UserManagementPage({ user, username }) {
         createdAt: new Date().toISOString(),
         lastUpdated: new Date().toISOString(),
         createdBy: username,
-        // Permissions automatically assigned based on role
         permissions: getPermissionsByRole(finalRole)
       };
 
@@ -119,7 +128,6 @@ export default function UserManagementPage({ user, username }) {
     }
   };
 
-  // Role ke hisaab se permissions return karein
   const getPermissionsByRole = (role) => {
     const permissionsConfig = {
       super_admin: {
@@ -300,16 +308,6 @@ export default function UserManagementPage({ user, username }) {
 
   if (loading) {
     return <div className="text-white text-center py-20">Loading...</div>;
-  }
-
-  if (user.role !== 'super_admin') {
-    return (
-      <div className="bg-red-900/20 border border-red-500 rounded-lg p-8 text-center">
-        <AlertCircle className="text-red-400 mx-auto mb-3" size={48} />
-        <h2 className="text-2xl font-bold text-red-400">⛔ Access Denied</h2>
-        <p className="text-gray-400 mt-2">Only Super Admin can manage users.</p>
-      </div>
-    );
   }
 
   return (
@@ -507,7 +505,6 @@ export default function UserManagementPage({ user, username }) {
                 </select>
               </div>
 
-              {/* Super Admin Checkbox - Sirf current user Super Admin hai toh */}
               {user.role === 'super_admin' && (
                 <div className="flex items-center gap-3 bg-purple-500/10 border border-purple-500/30 rounded-lg p-3">
                   <input
