@@ -2,13 +2,12 @@ import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { 
   LayoutDashboard, 
-  ClipboardList, 
   CalendarCheck, 
   AlertTriangle, 
   Flag,
   StickyNote,
   Users
-} from 'lucide-react';
+} from 'lucide-react';  // ← ClipboardList hata diya
 
 export default function Sidebar({ user, username }) {
   const router = useRouter();
@@ -21,12 +20,7 @@ export default function Sidebar({ user, username }) {
       icon: LayoutDashboard,
       permission: 'viewDashboard'
     },
-    {
-      name: 'Production Plans',
-      path: `/${username}/plans`,        // ← ✅ FIXED
-      icon: ClipboardList,
-      permission: 'viewPlans'
-    },
+    // ❌ Production Plans REMOVE KAR DIYA
     {
       name: 'Daily Production',
       path: `/${username}/daily`,
