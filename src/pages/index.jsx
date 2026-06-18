@@ -6,7 +6,7 @@ export default function Home() {
   const router = useRouter();
 
   useEffect(() => {
-    // Sirf root URL par redirect karein
+    // ✅ Sirf root URL (/) par redirect karein
     router.replace(`/${DEFAULT_USER}/dashboard`);
   }, [router]);
 
@@ -14,7 +14,7 @@ export default function Home() {
     <div className="min-h-screen flex items-center justify-center bg-primary">
       <div className="text-center">
         <div className="w-16 h-16 border-4 border-cyan-400 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-        <p className="text-white text-lg">Loading Dashboard...</p>
+        <p className="text-white text-lg">Redirecting to dashboard...</p>
       </div>
     </div>
   );
