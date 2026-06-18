@@ -23,7 +23,7 @@ export default function Sidebar({ user, username }) {
     },
     {
       name: 'Production Plans',
-      path: `/${username}/plans`,
+      path: `/${username}/plans`,        // ← ✅ FIXED
       icon: ClipboardList,
       permission: 'viewPlans'
     },
