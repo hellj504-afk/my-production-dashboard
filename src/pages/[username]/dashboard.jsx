@@ -339,28 +339,44 @@ export default function DashboardPage({ user, username }) {
         </div>
       </div>
 
-      {/* Summary Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-6 text-center shadow-lg shadow-cyan-500/10 hover:shadow-cyan-500/20 transition-all">
-          <p className="text-gray-400 text-sm uppercase tracking-wider">Global Plan Qty</p>
-          <p className="text-3xl font-bold text-white mt-2">{totalPlan.toLocaleString()}</p>
+      {/* ===== SUMMARY CARDS WITH WATER ANIMATION ===== */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        {/* Global Plan Qty - Water Animation */}
+        <div className="relative bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-6 text-center shadow-lg shadow-cyan-500/10 overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-r from-cyan-400/10 via-transparent to-purple-400/10 animate-[wave_3s_ease-in-out_infinite]"></div>
+          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-cyan-400/5 to-transparent animate-[wave_4s_ease-in-out_infinite]"></div>
+          <p className="text-gray-400 text-sm uppercase tracking-wider relative z-10">Global Plan Qty</p>
+          <p className="text-3xl font-bold text-white mt-2 relative z-10 animate-pulse">{totalPlan.toLocaleString()}</p>
         </div>
-        <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-6 text-center shadow-lg shadow-emerald-500/10 hover:shadow-emerald-500/20 transition-all">
-          <p className="text-gray-400 text-sm uppercase tracking-wider">Total Achieved</p>
-          <p className="text-3xl font-bold text-emerald-400 mt-2 animate-pulse">{totalAchieved.toLocaleString()}</p>
+        
+        {/* Total Achieved - Water Animation */}
+        <div className="relative bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-6 text-center shadow-lg shadow-emerald-500/10 overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-r from-emerald-400/10 via-transparent to-emerald-400/10 animate-[wave_3.5s_ease-in-out_infinite]"></div>
+          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-emerald-400/5 to-transparent animate-[wave_4.5s_ease-in-out_infinite]"></div>
+          <p className="text-gray-400 text-sm uppercase tracking-wider relative z-10">Total Achieved</p>
+          <p className="text-3xl font-bold text-emerald-400 mt-2 relative z-10 animate-pulse">{totalAchieved.toLocaleString()}</p>
         </div>
-        <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-6 text-center shadow-lg shadow-cyan-500/10 hover:shadow-cyan-500/20 transition-all">
-          <p className="text-gray-400 text-sm uppercase tracking-wider">Average Progress</p>
-          <div className="flex items-center justify-center gap-4 mt-2">
+        
+        {/* Average Progress - Water Animation */}
+        <div className="relative bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-6 text-center shadow-lg shadow-cyan-500/10 overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-r from-purple-400/10 via-transparent to-cyan-400/10 animate-[wave_4s_ease-in-out_infinite]"></div>
+          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-purple-400/5 to-transparent animate-[wave_5s_ease-in-out_infinite]"></div>
+          <p className="text-gray-400 text-sm uppercase tracking-wider relative z-10">Average Progress</p>
+          <div className="flex items-center justify-center gap-4 mt-2 relative z-10">
             <p className="text-3xl font-bold text-cyan-400 animate-pulse">{avgProgress}%</p>
-            <div className="flex-1 max-w-[100px] bg-white/10 rounded-full h-2">
-              <div className="bg-gradient-to-r from-cyan-400 to-purple-500 h-2 rounded-full transition-all duration-500" style={{ width: `${Math.min(avgProgress, 100)}%` }}></div>
+            <div className="flex-1 max-w-[100px] bg-white/10 rounded-full h-2 overflow-hidden">
+              <div 
+                className="bg-gradient-to-r from-cyan-400 to-purple-500 h-2 rounded-full transition-all duration-500 relative"
+                style={{ width: `${Math.min(avgProgress, 100)}%` }}
+              >
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent animate-[shimmer_2s_infinite]"></div>
+              </div>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Tower Progress Bars */}
+      {/* ===== TOWER PROGRESS BARS WITH WATER ANIMATION ===== */}
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
         {plans.map((product) => {
           const progress = product.targetQuantity > 0 ? ((product.achievedQuantity / product.targetQuantity) * 100).toFixed(1) : 0;
@@ -371,30 +387,54 @@ export default function DashboardPage({ user, username }) {
             <div key={product.id} className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-4 shadow-lg shadow-cyan-500/5 hover:shadow-cyan-500/20 transition-all duration-300 hover:scale-105">
               <h3 className="text-lg font-semibold text-white tracking-wide text-center">{product.productName}</h3>
               
+              {/* Tower with Water Animation */}
               <div className="relative w-full h-48 bg-white/5 rounded-lg mt-3 overflow-hidden border border-white/5">
+                {/* Target Line */}
                 <div className="absolute top-0 left-0 right-0 border-t-2 border-dashed border-white/20 z-10"></div>
                 
+                {/* Achieved Bar with Water Wave Animation */}
                 <div 
-                  className={`absolute bottom-0 left-0 right-0 bg-gradient-to-t ${color} transition-all duration-1000 rounded-t-lg shadow-lg shadow-cyan-500/20`}
+                  className={`absolute bottom-0 left-0 right-0 bg-gradient-to-t ${color} transition-all duration-1000 rounded-t-lg shadow-lg shadow-cyan-500/20 overflow-hidden`}
                   style={{ height: `${Math.min(towerHeight, 100)}%` }}
                 >
-                  <div className="absolute inset-0 bg-gradient-to-t from-transparent to-white/10 animate-pulse"></div>
+                  {/* Water Wave Effect 1 */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-transparent to-white/10 animate-[wave_2s_ease-in-out_infinite]"></div>
+                  
+                  {/* Water Wave Effect 2 - Blink + Float */}
+                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent animate-[wave_3s_ease-in-out_infinite]"></div>
+                  
+                  {/* Blinking Water Drops */}
+                  <div className="absolute top-0 left-0 right-0 h-1 bg-white/30 rounded-full animate-pulse"></div>
+                  <div className="absolute bottom-0 left-1/4 w-2 h-2 bg-white/20 rounded-full animate-bounce" style={{ animationDelay: '0.5s' }}></div>
+                  <div className="absolute bottom-0 right-1/4 w-2 h-2 bg-white/20 rounded-full animate-bounce" style={{ animationDelay: '1s' }}></div>
+                  
+                  {/* Shimmer Effect */}
+                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent animate-[shimmer_2s_infinite]"></div>
                 </div>
                 
+                {/* Neon Glow */}
                 <div 
                   className={`absolute bottom-0 left-0 right-0 bg-gradient-to-t ${color} blur-xl opacity-30 transition-all duration-1000`}
                   style={{ height: `${Math.min(towerHeight, 100)}%` }}
                 ></div>
                 
+                {/* Center Label */}
                 <div className="absolute inset-0 flex items-center justify-center flex-col z-10">
-                  <span className="text-2xl font-bold text-white drop-shadow-lg">{progress}%</span>
+                  <span className="text-2xl font-bold text-white drop-shadow-lg animate-pulse">{progress}%</span>
                   <span className="text-xs text-gray-400">{product.achievedQuantity || 0} / {product.targetQuantity}</span>
                 </div>
               </div>
               
+              {/* Stats */}
               <div className="flex justify-between text-xs text-gray-400 mt-2 px-1">
-                <span>🎯 {product.targetQuantity}</span>
-                <span className="text-emerald-400">✅ {product.achievedQuantity || 0}</span>
+                <span className="flex items-center gap-1">
+                  <span className="w-2 h-2 bg-cyan-400 rounded-full animate-pulse"></span>
+                  🎯 {product.targetQuantity}
+                </span>
+                <span className="text-emerald-400 flex items-center gap-1">
+                  <span className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></span>
+                  ✅ {product.achievedQuantity || 0}
+                </span>
               </div>
             </div>
           );
