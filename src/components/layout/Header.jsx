@@ -23,7 +23,7 @@ export default function Header({ user, username }) {
     { name: 'Users', path: `/${username}/users`, icon: Users, permission: 'manageUsers' },
   ];
 
-  const visibleItems = navItems.filter(item => user.permissions[item.permission]);
+  const visibleItems = navItems.filter(item => user?.permissions?.[item.permission]);
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-black/40 backdrop-blur-xl border-b border-white/10 h-16 px-6 flex items-center justify-between">
@@ -64,7 +64,7 @@ export default function Header({ user, username }) {
       <div className="flex items-center gap-4">
         <div className="flex items-center gap-3">
           <div className="text-right hidden sm:block">
-            <p className="text-sm font-semibold text-white">{user.displayName}</p>
+            <p className="text-sm font-semibold text-white">{user?.displayName || user?.name || 'Guest'}</p>
             <p className="text-xs text-cyan-400/60">@{username}</p>
           </div>
           <div className="w-10 h-10 rounded-full bg-gradient-to-r from-cyan-400 to-purple-500 flex items-center justify-center shadow-lg shadow-cyan-500/20">
