@@ -5,7 +5,6 @@ export default function Home() {
   const router = useRouter();
 
   useEffect(() => {
-    // ✅ Sirf root URL (/) par redirect
     router.replace('/umair/dashboard');
   }, [router]);
 
