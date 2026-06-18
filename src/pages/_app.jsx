@@ -10,31 +10,40 @@ function MyApp({ Component, pageProps }) {
   const router = useRouter();
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
-
-  // ✅ Sab se zaroori line: username URL se lo, agar nahi hai toh default (umair) lo
-  const username = router.query.username || DEFAULT_USER;
+  
+  // ✅ Sirf URL se username lo, koi default nahi (agar username nahi hai toh guest)
+  const username = router.query.username;
 
   useEffect(() => {
+    // ✅ Agar username nahi hai toh guest user use karein (redirect nahi)
+    if (!username) {
+      console.log("👤 No username in URL, using guest");
+      setUser(USER_CONFIG.guest);
+      setLoading(false);
+      return;
+    }
+
     const fetchUser = async () => {
       try {
         setLoading(true);
         console.log("🔍 Fetching user for:", username);
-
-        // 1. Pehle config se user fetch karein
+        
+        // 1. Config se user fetch karein
         const configUser = getUserByUsername(username);
+        console.log("📋 Config user:", configUser?.displayName || "Not found");
+        
         if (configUser && configUser.id !== 'guest') {
-          console.log("✅ User found in config:", configUser.displayName);
           setUser(configUser);
           setLoading(false);
-          return; // ✅ Agar config mein mil gaya, toh yahin ruk jao
+          return;
         }
 
-        // 2. Agar config mein nahi, toh Firestore se try karein
+        // 2. Firestore se try karein
         try {
           const userDoc = await getDoc(doc(db, 'users', username));
           if (userDoc.exists()) {
             const userData = userDoc.data();
-            console.log("✅ User found in Firestore:", userData.name);
+            console.log("🔥 Firestore user:", userData.name);
             setUser({
               id: username,
               ...userData,
@@ -44,33 +53,31 @@ function MyApp({ Component, pageProps }) {
             return;
           }
         } catch (firestoreError) {
-          console.warn("⚠️ Firestore error, using guest user:", firestoreError);
+          console.warn("⚠️ Firestore error:", firestoreError);
         }
 
-        // 3. Agar kuch nahi mila, toh guest user use karein (🚫 KOI REDIRECT NAHI)
-        console.log("👤 Using guest user for:", username);
+        // 3. Agar kuch nahi mila toh guest
+        console.log("👤 Using guest for:", username);
         setUser(USER_CONFIG.guest);
         setLoading(false);
-
+        
       } catch (error) {
-        console.error('❌ Error fetching user:', error);
+        console.error('❌ Error:', error);
         setUser(USER_CONFIG.guest);
         setLoading(false);
       }
     };
 
-    if (username) {
-      fetchUser();
-    }
-    // ✅ IMPORTANT: Yahan koi redirect nahi hona chahiye
-  }, [username]); // ✅ Sirf username change hone par fetch karein
+    fetchUser();
+    // ❌ YAHAN KOI REDIRECT NAHI HONA CHAHIYE
+  }, [username]);
 
   if (loading) {
     return (
       <div className="min-h-screen bg-primary flex items-center justify-center">
         <div className="text-center">
           <div className="w-16 h-16 border-4 border-cyan-400 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-white">Loading user data for: {username}</p>
+          <p className="text-white">Loading user data for: {username || 'guest'}</p>
         </div>
       </div>
     );
@@ -80,10 +87,9 @@ function MyApp({ Component, pageProps }) {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#0a0a1a] via-[#0d0d2b] to-[#1a0a2e]">
-      <Header user={currentUser} username={username} />
+      <Header user={currentUser} username={username || 'guest'} />
       <main className="pt-20 px-4 md:px-8 max-w-7xl mx-auto">
-        {/* ✅ Page component ko current user aur username pass karein */}
-        <Component {...pageProps} user={currentUser} username={username} />
+        <Component {...pageProps} user={currentUser} username={username || 'guest'} />
       </main>
     </div>
   );
