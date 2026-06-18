@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import { doc, getDoc } from 'firebase/firestore';
 import { db } from '../firebase/config';
-import { DEFAULT_USER, USER_CONFIG, getUserByUsername } from '../config/users';
+import { USER_CONFIG, getUserByUsername } from '../config/users';
 import Header from '../components/layout/Header';
 import '../styles/globals.css';
 
@@ -11,13 +11,24 @@ function MyApp({ Component, pageProps }) {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   
-  // ✅ Sirf URL se username lo, koi default nahi (agar username nahi hai toh guest)
-  const username = router.query.username;
+  // ✅ FIX: router.asPath se username nikaalein
+  const getUsernameFromPath = () => {
+    const path = router.asPath || '';
+    // /waqar/dashboard → waqar
+    // /umair/dashboard → umair
+    const match = path.match(/^\/([^\/]+)/);
+    if (match) {
+      return match[1];
+    }
+    return null;
+  };
+
+  const username = getUsernameFromPath();
 
   useEffect(() => {
-    // ✅ Agar username nahi hai toh guest user use karein (redirect nahi)
+    // Agar username nahi mila toh guest use karein
     if (!username) {
-      console.log("👤 No username in URL, using guest");
+      console.log("👤 No username found in path, using guest");
       setUser(USER_CONFIG.guest);
       setLoading(false);
       return;
@@ -69,27 +80,27 @@ function MyApp({ Component, pageProps }) {
     };
 
     fetchUser();
-    // ❌ YAHAN KOI REDIRECT NAHI HONA CHAHIYE
-  }, [username]);
+  }, [username, router.asPath]);
 
   if (loading) {
     return (
       <div className="min-h-screen bg-primary flex items-center justify-center">
         <div className="text-center">
           <div className="w-16 h-16 border-4 border-cyan-400 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-white">Loading user data for: {username || 'guest'}</p>
+          <p className="text-white">Loading user data...</p>
         </div>
       </div>
     );
   }
 
   const currentUser = user || USER_CONFIG.guest;
+  const displayUsername = username || 'guest';
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#0a0a1a] via-[#0d0d2b] to-[#1a0a2e]">
-      <Header user={currentUser} username={username || 'guest'} />
+      <Header user={currentUser} username={displayUsername} />
       <main className="pt-20 px-4 md:px-8 max-w-7xl mx-auto">
-        <Component {...pageProps} user={currentUser} username={username || 'guest'} />
+        <Component {...pageProps} user={currentUser} username={displayUsername} />
       </main>
     </div>
   );
