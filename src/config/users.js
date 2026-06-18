@@ -35,7 +35,7 @@ export const USER_CONFIG = {
     }
   },
 
-  // 📋 PRODUCTION PLANNER - 1 Person
+  // 📋 PRODUCTION PLANNER
   usman: {
     id: "usman",
     username: "usman",
@@ -71,7 +71,7 @@ export const USER_CONFIG = {
     }
   },
 
-  // 🏭 FLOOR SUPERVISOR 1 - Morning Shift
+  // 🏭 FLOOR SUPERVISOR 1
   rizwan: {
     id: "rizwan",
     username: "rizwan",
@@ -108,7 +108,7 @@ export const USER_CONFIG = {
     }
   },
 
-  // 🏭 FLOOR SUPERVISOR 2 - Evening Shift
+  // 🏭 FLOOR SUPERVISOR 2
   ahmed: {
     id: "ahmed",
     username: "ahmed",
@@ -155,24 +155,24 @@ export const USER_CONFIG = {
     accessLink: "https://my-production-dashboard.vercel.app/guest/dashboard",
     permissions: {
       viewDashboard: true,
-      viewPlans: true,
+      viewPlans: false,
       createPlan: false,
       editPlan: false,
       deletePlan: false,
-      viewDailyProduction: true,
+      viewDailyProduction: false,
       createDailyProduction: false,
       editDailyProduction: false,
       deleteDailyProduction: false,
-      viewShortages: true,
+      viewShortages: false,
       createShortage: false,
       editShortage: false,
       deleteShortage: false,
       resolveShortage: false,
-      viewPriorities: true,
+      viewPriorities: false,
       createPriority: false,
       editPriority: false,
       deletePriority: false,
-      viewLiveNotes: true,
+      viewLiveNotes: false,
       createLiveNote: false,
       editLiveNote: false,
       deleteLiveNote: false,
@@ -182,16 +182,13 @@ export const USER_CONFIG = {
   }
 };
 
-// Get user by username
 export const getUserByUsername = (username) => {
   return USER_CONFIG[username] || USER_CONFIG.guest;
 };
 
-// Check if user has specific permission
 export const hasPermission = (username, permission) => {
   const user = getUserByUsername(username);
   return user?.permissions?.[permission] || false;
 };
 
-// Default user (redirect if no username provided)
 export const DEFAULT_USER = "umair";
