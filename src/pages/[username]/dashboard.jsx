@@ -1,145 +1,37 @@
 import { useState, useEffect } from 'react';
-import { collection, addDoc, deleteDoc, updateDoc, doc, onSnapshot } from 'firebase/firestore';
+import { motion, AnimatePresence } from 'framer-motion';
+import { collection, onSnapshot } from 'firebase/firestore';
 import { db } from '../../firebase/config';
-import { Plus, X, Trash2, Package, Edit2, Check } from 'lucide-react';
-import toast from 'react-hot-toast';
+import { 
+  Package, 
+  TrendingUp, 
+  Target, 
+  CheckCircle, 
+  AlertCircle,
+  Zap,
+  Activity,
+  Cpu
+} from 'lucide-react';
 
-export default function DashboardPage({ user, username }) {
-  const [plans, setPlans] = useState([]);
-  const [notes, setNotes] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [showNoteInput, setShowNoteInput] = useState(false);
-  const [noteText, setNoteText] = useState('');
-  const [showAddProduct, setShowAddProduct] = useState(false);
-  const [editingProduct, setEditingProduct] = useState(null);
-  const [newProduct, setNewProduct] = useState({
-    productName: '',
-    targetQuantity: ''
-  });
+// ===== MOCK PRODUCTION DATA =====
+const productionData = [
+  { id: 1, name: 'HT CT', plan: 289, achieved: 0 },
+  { id: 2, name: 'PT', plan: 100, achieved: 7 },
+  { id: 3, name: 'Bushing CT', plan: 13, achieved: 0 },
+  { id: 4, name: 'INSULATOR', plan: 2400, achieved: 101 },
+  { id: 5, name: 'KE VCB Bushing', plan: 0, achieved: 0 },
+  { id: 6, name: 'LTCT ITR-WLT', plan: 6, achieved: 0 },
+  { id: 7, name: 'EARTHING SWITCH', plan: 20, achieved: 0 },
+];
 
-  useEffect(() => {
-    const unsubscribePlans = onSnapshot(collection(db, 'productionPlans'), (snapshot) => {
-      const data = [];
-      snapshot.forEach((doc) => {
-        data.push({ id: doc.id, ...doc.data() });
-      });
-      setPlans(data);
-      setLoading(false);
-    });
-
-    const unsubscribeNotes = onSnapshot(collection(db, 'liveNotes'), (snapshot) => {
-      const notesData = [];
-      snapshot.forEach((doc) => {
-        notesData.push({ id: doc.id, ...doc.data() });
-      });
-      notesData.sort((a, b) => {
-        if (a.isPinned && !b.isPinned) return -1;
-        if (!a.isPinned && b.isPinned) return 1;
-        return new Date(b.createdAt) - new Date(a.createdAt);
-      });
-      setNotes(notesData);
-    });
-
-    return () => {
-      unsubscribePlans();
-      unsubscribeNotes();
-    };
-  }, []);
-
-  const addProduct = async () => {
-    if (!newProduct.productName.trim() || !newProduct.targetQuantity) {
-      toast.error('Please fill all fields');
-      return;
-    }
-    try {
-      await addDoc(collection(db, 'productionPlans'), {
-        productName: newProduct.productName.trim(),
-        targetQuantity: Number(newProduct.targetQuantity),
-        achievedQuantity: 0,
-        status: 'ongoing',
-        createdAt: new Date().toISOString(),
-        createdBy: username
-      });
-      toast.success(`✅ ${newProduct.productName} added!`);
-      setNewProduct({ productName: '', targetQuantity: '' });
-      setShowAddProduct(false);
-    } catch (error) {
-      console.error('Error adding product:', error);
-      toast.error('Failed to add product');
-    }
-  };
-
-  const startEdit = (product) => {
-    setEditingProduct({
-      id: product.id,
-      productName: product.productName,
-      targetQuantity: product.targetQuantity
-    });
-  };
-
-  const saveEdit = async () => {
-    if (!editingProduct.productName.trim() || !editingProduct.targetQuantity) {
-      toast.error('Please fill all fields');
-      return;
-    }
-    try {
-      await updateDoc(doc(db, 'productionPlans', editingProduct.id), {
-        productName: editingProduct.productName.trim(),
-        targetQuantity: Number(editingProduct.targetQuantity),
-        lastUpdated: new Date().toISOString()
-      });
-      toast.success(`✅ ${editingProduct.productName} updated!`);
-      setEditingProduct(null);
-    } catch (error) {
-      console.error('Error updating product:', error);
-      toast.error('Failed to update product');
-    }
-  };
-
-  const deleteProduct = async (productId, productName) => {
-    if (!confirm(`Delete "${productName}"?`)) return;
-    try {
-      await deleteDoc(doc(db, 'productionPlans', productId));
-      toast.success(`🗑️ ${productName} deleted!`);
-    } catch (error) {
-      console.error('Error deleting product:', error);
-      toast.error('Failed to delete product');
-    }
-  };
-
-  const addNote = async () => {
-    if (!noteText.trim()) return;
-    try {
-      await addDoc(collection(db, 'liveNotes'), {
-        content: noteText,
-        author: username,
-        authorName: user?.name || 'User',
-        isPinned: false,
-        createdAt: new Date().toISOString()
-      });
-      setNoteText('');
-      setShowNoteInput(false);
-      toast.success('Note added!');
-    } catch (error) {
-      console.error('Error adding note:', error);
-      toast.error('Failed to add note');
-    }
-  };
-
-  const deleteNote = async (noteId) => {
-    if (!confirm('Delete this note?')) return;
-    try {
-      await deleteDoc(doc(db, 'liveNotes', noteId));
-      toast.success('Note deleted');
-    } catch (error) {
-      console.error('Error deleting note:', error);
-      toast.error('Failed to delete note');
-    }
-  };
-
-  const totalPlan = plans.reduce((sum, item) => sum + (item.targetQuantity || 0), 0);
-  const totalAchieved = plans.reduce((sum, item) => sum + (item.achievedQuantity || 0), 0);
-  const avgProgress = totalPlan > 0 ? ((totalAchieved / totalPlan) * 100).toFixed(1) : 0;
+// ===== PRODUCT CARD COMPONENT =====
+function ProductionCard({ product, index }) {
+  const progress = product.plan > 0 
+    ? ((product.achieved / product.plan) * 100).toFixed(1) 
+    : 0;
+  
+  const circumference = 2 * Math.PI * 35;
+  const offset = circumference - (progress / 100) * circumference;
 
   const productColors = {
     'HT CT': 'from-cyan-400 to-blue-600',
@@ -151,272 +43,319 @@ export default function DashboardPage({ user, username }) {
     'EARTHING SWITCH': 'from-orange-400 to-yellow-600'
   };
 
+  const glowColors = {
+    'HT CT': 'shadow-cyan-500/20',
+    'PT': 'shadow-emerald-500/20',
+    'Bushing CT': 'shadow-yellow-500/20',
+    'INSULATOR': 'shadow-rose-500/20',
+    'KE VCB Bushing': 'shadow-purple-500/20',
+    'LTCT ITR-WLT': 'shadow-pink-500/20',
+    'EARTHING SWITCH': 'shadow-orange-500/20'
+  };
+
+  const color = productColors[product.name] || 'from-cyan-400 to-blue-600';
+  const glow = glowColors[product.name] || 'shadow-cyan-500/20';
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 30 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: index * 0.08, duration: 0.5 }}
+      whileHover={{ y: -8, scale: 1.02 }}
+      className="product-card group relative glass-cyan rounded-2xl p-5 border border-cyan-500/20 hover:border-cyan-400/50 transition-all duration-500"
+    >
+      {/* Animated Border Glow */}
+      <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-cyan-500/10 via-transparent to-blue-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+      
+      {/* Holographic Scan Line */}
+      <div className="absolute inset-0 rounded-2xl overflow-hidden">
+        <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-cyan-400/50 to-transparent animate-[holographicScan_3s_ease-in-out_infinite]"></div>
+      </div>
+
+      {/* Product Icon / Holographic Model */}
+      <div className="flex justify-center mb-3">
+        <div className="holographic-model relative">
+          <div className={`cube ${color}`}>
+            <div className="cube-inner"></div>
+          </div>
+          <div className="absolute -inset-4 bg-cyan-500/5 rounded-full blur-2xl group-hover:bg-cyan-500/10 transition-all"></div>
+          <div className="absolute -top-1 -right-1 w-2 h-2 bg-cyan-400 rounded-full animate-pulse shadow-[0_0_10px_cyan]"></div>
+          <div className="absolute -bottom-1 -left-1 w-2 h-2 bg-blue-400 rounded-full animate-pulse shadow-[0_0_10px_blue]"></div>
+        </div>
+      </div>
+
+      {/* Product Name */}
+      <h3 className="text-center text-white font-bold text-lg tracking-wider font-['Orbitron'] drop-shadow-[0_0_15px_rgba(0,255,255,0.2)]">
+        {product.name}
+      </h3>
+
+      {/* Plan & Achieved */}
+      <div className="flex justify-between text-sm mt-3 px-2">
+        <div className="text-center">
+          <p className="text-gray-400 text-[10px] uppercase tracking-wider">Plan</p>
+          <p className="text-white font-bold text-lg">{product.plan}</p>
+        </div>
+        <div className="text-center">
+          <p className="text-gray-400 text-[10px] uppercase tracking-wider">Achieved</p>
+          <p className="text-emerald-400 font-bold text-lg animate-pulse">{product.achieved}</p>
+        </div>
+      </div>
+
+      {/* Circular Progress */}
+      <div className="flex justify-center mt-4">
+        <div className="relative w-24 h-24">
+          <svg className="w-24 h-24 progress-ring" viewBox="0 0 100 100">
+            <circle
+              className="bg"
+              cx="50"
+              cy="50"
+              r="35"
+              fill="none"
+              strokeWidth="6"
+            />
+            <circle
+              className="progress"
+              cx="50"
+              cy="50"
+              r="35"
+              fill="none"
+              strokeWidth="6"
+              strokeDasharray={circumference}
+              strokeDashoffset={offset}
+              stroke={`url(#grad-${index})`}
+            />
+            <defs>
+              <linearGradient id={`grad-${index}`} x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stopColor="#00ffff" />
+                <stop offset="100%" stopColor="#0066ff" />
+              </linearGradient>
+            </defs>
+          </svg>
+          
+          {/* Center Percentage */}
+          <div className="absolute inset-0 flex items-center justify-center">
+            <span className="text-xl font-bold text-cyan-400 font-['Orbitron'] drop-shadow-[0_0_20px_rgba(0,255,255,0.3)]">
+              {progress}%
+            </span>
+          </div>
+          
+          {/* Glow Effect */}
+          <div className="absolute -inset-4 bg-cyan-500/5 rounded-full blur-xl animate-pulse"></div>
+        </div>
+      </div>
+
+      {/* Status Indicator */}
+      <div className="flex justify-center mt-2">
+        {product.achieved >= product.plan && product.plan > 0 ? (
+          <span className="text-xs text-emerald-400 flex items-center gap-1">
+            <CheckCircle size={14} /> Complete
+          </span>
+        ) : product.plan === 0 ? (
+          <span className="text-xs text-gray-500 flex items-center gap-1">
+            <AlertCircle size={14} /> No Target
+          </span>
+        ) : (
+          <span className="text-xs text-cyan-400 flex items-center gap-1 animate-pulse">
+            <Activity size={14} /> In Progress
+          </span>
+        )}
+      </div>
+    </motion.div>
+  );
+}
+
+// ===== MAIN DASHBOARD =====
+export default function DashboardPage({ user, username }) {
+  const [plans, setPlans] = useState([]);
+  const [loading, setLoading] = useState(true);
+  
+  // Real-time data from Firebase
+  useEffect(() => {
+    const unsubscribe = onSnapshot(
+      collection(db, 'productionPlans'),
+      (snapshot) => {
+        const data = [];
+        snapshot.forEach((doc) => {
+          data.push({ id: doc.id, ...doc.data() });
+        });
+        setPlans(data);
+        setLoading(false);
+      },
+      (error) => {
+        console.error('Firebase error:', error);
+        // Fallback to mock data if Firebase fails
+        setPlans(productionData);
+        setLoading(false);
+      }
+    );
+    return () => unsubscribe();
+  }, []);
+
+  // Use real data or fallback
+  const displayData = plans.length > 0 ? plans : productionData;
+
+  const totalPlan = displayData.reduce((sum, item) => sum + (item.plan || item.targetQuantity || 0), 0);
+  const totalAchieved = displayData.reduce((sum, item) => sum + (item.achieved || item.achievedQuantity || 0), 0);
+  const avgProgress = totalPlan > 0 ? ((totalAchieved / totalPlan) * 100).toFixed(1) : 0;
+
+  // Floating particles
+  const particles = Array.from({ length: 30 }, (_, i) => ({
+    id: i,
+    left: Math.random() * 100,
+    delay: Math.random() * 10,
+    duration: 15 + Math.random() * 20,
+    size: 2 + Math.random() * 3,
+  }));
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
         <div className="text-center">
-          <div className="w-16 h-16 border-4 border-cyan-400 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-white text-lg">Loading...</p>
+          <div className="w-16 h-16 border-4 border-cyan-400 border-t-transparent rounded-full animate-spin mx-auto mb-4 shadow-[0_0_40px_rgba(0,255,255,0.2)]"></div>
+          <p className="text-cyan-400 font-['Orbitron'] text-sm animate-pulse">INITIALIZING HOLOGRAPHIC DISPLAY...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="text-center py-4">
-        <h1 className="text-3xl md:text-4xl font-bold text-white tracking-wider bg-gradient-to-r from-cyan-400 to-purple-400 bg-clip-text text-transparent">
-          WIP PRODUCTION SUMMARY
-        </h1>
-        <p className="text-cyan-400/60 text-sm mt-1 animate-pulse">
-          {new Date().toLocaleString('default', { month: 'long', year: 'numeric' })} - DAY {new Date().getDate()}
-        </p>
-        <div className="flex justify-center gap-4 mt-2 text-xs text-gray-500">
-          <span className="flex items-center gap-1">
-            <span className="w-2 h-2 bg-green-500 rounded-full animate-ping"></span>
-            LIVE
-          </span>
-          <span>|</span>
-          <span>🔄 Auto-sync</span>
-        </div>
+    <div className="relative min-h-screen overflow-hidden">
+      {/* Background */}
+      <div className="dashboard-bg"></div>
+      <div className="scan-lines"></div>
+      
+      {/* Floating Particles */}
+      <div className="particles">
+        {particles.map((p) => (
+          <div
+            key={p.id}
+            className="particle"
+            style={{
+              left: `${p.left}%`,
+              animationDuration: `${p.duration}s`,
+              animationDelay: `${p.delay}s`,
+              width: `${p.size}px`,
+              height: `${p.size}px`,
+            }}
+          />
+        ))}
       </div>
 
-      {/* Live Notes */}
-      <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-4">
-        <div className="flex items-center justify-between mb-3">
-          <h2 className="text-sm font-semibold text-cyan-400 flex items-center gap-2">
-            <span className="w-2 h-2 bg-cyan-400 rounded-full animate-pulse"></span>
-            📢 LIVE NOTES
-          </h2>
-          {user?.permissions?.createLiveNote && (
-            <button
-              onClick={() => setShowNoteInput(!showNoteInput)}
-              className="bg-cyan-400/20 hover:bg-cyan-400/30 text-cyan-400 px-3 py-1 rounded-lg text-sm flex items-center gap-1 transition-all"
+      {/* Holographic Grid Overlay */}
+      <div className="fixed inset-0 holographic-grid pointer-events-none z-0"></div>
+
+      <div className="relative z-10 p-4 md:p-8 max-w-7xl mx-auto">
+        {/* ===== TOP SUMMARY PANEL ===== */}
+        <motion.div
+          initial={{ opacity: 0, y: -30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8 }}
+          className="glass rounded-3xl p-6 md:p-8 mb-8 border border-cyan-500/30 shadow-[0_0_60px_rgba(0,255,255,0.05)] pulse-glow relative overflow-hidden"
+        >
+          {/* Animated Border */}
+          <div className="absolute inset-0 rounded-3xl bg-gradient-to-r from-cyan-500/5 via-transparent to-blue-500/5 animate-pulse"></div>
+          
+          {/* Energy Lines */}
+          <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-cyan-400/50 to-transparent animate-[energyLine_3s_ease-in-out_infinite]"></div>
+          <div className="absolute bottom-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-blue-400/30 to-transparent animate-[energyLine_4s_ease-in-out_infinite]"></div>
+          
+          {/* Header */}
+          <div className="text-center relative">
+            <h1 className="text-2xl md:text-4xl lg:text-5xl font-['Orbitron'] font-bold neon-text tracking-wider">
+              WIP PRODUCTION SUMMARY
+            </h1>
+            <p className="text-cyan-400/60 text-sm md:text-base mt-2 font-['Orbitron'] tracking-widest">
+              {new Date().toLocaleString('default', { month: 'long', year: 'numeric' })} — DAY {new Date().getDate()}
+            </p>
+            <div className="flex justify-center gap-6 mt-3 text-xs text-cyan-400/40 font-['Orbitron']">
+              <span className="flex items-center gap-2">
+                <span className="w-2 h-2 bg-green-400 rounded-full animate-ping"></span>
+                ● LIVE
+              </span>
+              <span>|</span>
+              <span className="flex items-center gap-1">
+                <Zap size={14} className="text-cyan-400 animate-pulse" />
+                AUTO-SYNC
+              </span>
+              <span>|</span>
+              <span className="flex items-center gap-1">
+                <Cpu size={14} className="text-cyan-400" />
+                INDUSTRY 4.0
+              </span>
+            </div>
+          </div>
+
+          {/* Summary Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
+            <motion.div
+              whileHover={{ scale: 1.02 }}
+              className="glass-cyan rounded-2xl p-5 text-center border border-cyan-500/20 hover:border-cyan-400/40 transition-all"
             >
-              <Plus size={16} /> Add Note
-            </button>
-          )}
-        </div>
+              <div className="flex items-center justify-center gap-2 text-cyan-400/60 text-xs uppercase tracking-wider font-['Orbitron']">
+                <Target size={16} /> Global Plan Qty
+              </div>
+              <p className="text-3xl md:text-4xl font-['Orbitron'] font-bold text-white mt-2 drop-shadow-[0_0_30px_rgba(0,255,255,0.2)]">
+                {totalPlan.toLocaleString()}
+              </p>
+              <div className="w-20 h-1 bg-gradient-to-r from-cyan-400 to-blue-500 rounded-full mx-auto mt-2"></div>
+            </motion.div>
 
-        {showNoteInput && user?.permissions?.createLiveNote && (
-          <div className="flex gap-2 mb-3">
-            <input
-              type="text"
-              value={noteText}
-              onChange={(e) => setNoteText(e.target.value)}
-              placeholder="Write a note..."
-              className="flex-1 bg-white/10 border border-white/10 rounded-lg px-4 py-2 text-white text-sm focus:outline-none focus:border-cyan-400/50"
-              onKeyDown={(e) => e.key === 'Enter' && addNote()}
-            />
-            <button
-              onClick={addNote}
-              className="bg-cyan-400 hover:bg-cyan-500 px-4 py-2 rounded-lg text-black font-medium text-sm transition-all"
+            <motion.div
+              whileHover={{ scale: 1.02 }}
+              className="glass-cyan rounded-2xl p-5 text-center border border-emerald-500/20 hover:border-emerald-400/40 transition-all"
             >
-              Post
-            </button>
-          </div>
-        )}
-
-        <div className="space-y-2 max-h-40 overflow-y-auto">
-          {notes.length === 0 ? (
-            <p className="text-gray-500 text-sm text-center py-2">No notes yet</p>
-          ) : (
-            notes.map((note) => (
-              <div
-                key={note.id}
-                className={`flex items-center justify-between bg-white/5 border rounded-lg px-3 py-2 text-sm ${
-                  note.isPinned ? 'border-yellow-400/40' : 'border-white/5'
-                }`}
-              >
-                <div className="flex items-center gap-2 flex-1">
-                  <span className="text-white">{note.content}</span>
-                  <span className="text-gray-500 text-xs ml-2">— {note.authorName || note.author}</span>
-                  <span className="text-gray-600 text-xs">
-                    {new Date(note.createdAt).toLocaleTimeString()}
-                  </span>
-                </div>
-                {(user?.role === 'super_admin' || note.author === username) && (
-                  <button
-                    onClick={() => deleteNote(note.id)}
-                    className="text-gray-500 hover:text-rose-400 transition-colors"
-                  >
-                    <Trash2 size={14} />
-                  </button>
-                )}
+              <div className="flex items-center justify-center gap-2 text-emerald-400/60 text-xs uppercase tracking-wider font-['Orbitron']">
+                <CheckCircle size={16} /> Total Achieved
               </div>
-            ))
-          )}
-        </div>
-      </div>
+              <p className="text-3xl md:text-4xl font-['Orbitron'] font-bold text-emerald-400 mt-2 animate-pulse drop-shadow-[0_0_30px_rgba(52,211,153,0.2)]">
+                {totalAchieved.toLocaleString()}
+              </p>
+              <div className="w-20 h-1 bg-gradient-to-r from-emerald-400 to-cyan-500 rounded-full mx-auto mt-2"></div>
+            </motion.div>
 
-      {/* Products Section */}
-      {(user?.permissions?.viewPlans || user?.role === 'super_admin') && (
-        <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-4">
-          <div className="flex items-center justify-between">
-            <h2 className="text-sm font-semibold text-emerald-400 flex items-center gap-2">
-              <Package size={18} />
-              PRODUCTS
-              <span className="text-gray-500 text-xs ml-2">({plans.length})</span>
-            </h2>
-            {user?.permissions?.createPlan && (
-              <button
-                onClick={() => setShowAddProduct(!showAddProduct)}
-                className="bg-emerald-400/20 hover:bg-emerald-400/30 text-emerald-400 px-3 py-1 rounded-lg text-sm flex items-center gap-1 transition-all"
-              >
-                <Plus size={16} /> Add Product
-              </button>
-            )}
-          </div>
-
-          {showAddProduct && user?.permissions?.createPlan && (
-            <div className="flex flex-wrap gap-3 mt-3">
-              <input
-                type="text"
-                placeholder="Product name"
-                value={newProduct.productName}
-                onChange={(e) => setNewProduct({ ...newProduct, productName: e.target.value })}
-                className="flex-1 bg-white/10 border border-white/10 rounded-lg px-4 py-2 text-white text-sm focus:outline-none focus:border-emerald-400/50"
-              />
-              <input
-                type="number"
-                placeholder="Target"
-                value={newProduct.targetQuantity}
-                onChange={(e) => setNewProduct({ ...newProduct, targetQuantity: e.target.value })}
-                className="w-24 bg-white/10 border border-white/10 rounded-lg px-4 py-2 text-white text-sm focus:outline-none focus:border-emerald-400/50"
-              />
-              <button
-                onClick={addProduct}
-                className="bg-emerald-400 hover:bg-emerald-500 px-4 py-2 rounded-lg text-black font-medium text-sm transition-all"
-              >
-                Add
-              </button>
-              <button
-                onClick={() => setShowAddProduct(false)}
-                className="bg-white/10 hover:bg-white/20 px-4 py-2 rounded-lg text-gray-400 text-sm transition-all"
-              >
-                Cancel
-              </button>
-            </div>
-          )}
-
-          <div className="flex flex-wrap gap-2 mt-3">
-            {plans.map((product) => (
-              <div
-                key={product.id}
-                className="flex items-center gap-1 bg-white/5 border border-white/10 rounded-full px-3 py-1 text-sm text-gray-300 hover:border-cyan-400/30 transition-all group"
-              >
-                {editingProduct && editingProduct.id === product.id && user?.permissions?.editPlan ? (
-                  <div className="flex items-center gap-2">
-                    <input
-                      type="text"
-                      value={editingProduct.productName}
-                      onChange={(e) => setEditingProduct({ ...editingProduct, productName: e.target.value })}
-                      className="bg-white/10 border border-white/10 rounded px-2 py-0.5 text-white text-sm w-24 focus:outline-none focus:border-emerald-400/50"
-                    />
-                    <input
-                      type="number"
-                      value={editingProduct.targetQuantity}
-                      onChange={(e) => setEditingProduct({ ...editingProduct, targetQuantity: e.target.value })}
-                      className="bg-white/10 border border-white/10 rounded px-2 py-0.5 text-white text-sm w-16 focus:outline-none focus:border-emerald-400/50"
-                    />
-                    <button onClick={saveEdit} className="text-emerald-400 hover:text-emerald-300">
-                      <Check size={16} />
-                    </button>
-                    <button onClick={() => setEditingProduct(null)} className="text-gray-500 hover:text-rose-400">
-                      <X size={16} />
-                    </button>
-                  </div>
-                ) : (
-                  <>
-                    <span>{product.productName}</span>
-                    <span className="text-gray-500 text-xs">({product.targetQuantity})</span>
-                    {user?.permissions?.editPlan && (
-                      <button onClick={() => startEdit(product)} className="text-gray-500 hover:text-cyan-400 transition-all ml-1 opacity-0 group-hover:opacity-100">
-                        <Edit2 size={14} />
-                      </button>
-                    )}
-                    {user?.permissions?.deletePlan && (
-                      <button onClick={() => deleteProduct(product.id, product.productName)} className="text-gray-500 hover:text-rose-400 transition-all opacity-0 group-hover:opacity-100">
-                        <X size={14} />
-                      </button>
-                    )}
-                  </>
-                )}
+            <motion.div
+              whileHover={{ scale: 1.02 }}
+              className="glass-cyan rounded-2xl p-5 text-center border border-purple-500/20 hover:border-purple-400/40 transition-all"
+            >
+              <div className="flex items-center justify-center gap-2 text-purple-400/60 text-xs uppercase tracking-wider font-['Orbitron']">
+                <TrendingUp size={16} /> Average Progress
               </div>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* Summary Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-6 text-center">
-          <p className="text-gray-400 text-sm uppercase tracking-wider">Global Plan Qty</p>
-          <p className="text-3xl font-bold text-white mt-2">{totalPlan.toLocaleString()}</p>
-        </div>
-        <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-6 text-center">
-          <p className="text-gray-400 text-sm uppercase tracking-wider">Total Achieved</p>
-          <p className="text-3xl font-bold text-emerald-400 mt-2 animate-pulse">{totalAchieved.toLocaleString()}</p>
-        </div>
-        <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-6 text-center">
-          <p className="text-gray-400 text-sm uppercase tracking-wider">Average Progress</p>
-          <div className="flex items-center justify-center gap-4 mt-2">
-            <p className="text-3xl font-bold text-cyan-400 animate-pulse">{avgProgress}%</p>
-            <div className="flex-1 max-w-[100px] bg-white/10 rounded-full h-2">
-              <div className="bg-gradient-to-r from-cyan-400 to-purple-500 h-2 rounded-full transition-all duration-500" style={{ width: `${Math.min(avgProgress, 100)}%` }}></div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* 2 Towers */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
-        {plans.map((product) => {
-          const progress = product.targetQuantity > 0 ? ((product.achievedQuantity / product.targetQuantity) * 100).toFixed(1) : 0;
-          const color = productColors[product.productName] || 'from-cyan-400 to-blue-600';
-          const towerHeight = Math.min(progress, 100);
-
-          return (
-            <div key={product.id} className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-4 hover:shadow-lg transition-all">
-              <h3 className="text-lg font-semibold text-white tracking-wide text-center">{product.productName}</h3>
-              
-              <div className="flex gap-2 mt-3 h-48">
-                {/* Tower 1: Target */}
-                <div className="flex-1 relative bg-white/5 rounded-lg overflow-hidden border border-white/5">
-                  <div className="absolute inset-0 flex items-center justify-center flex-col z-10">
-                    <span className="text-xs font-bold text-white drop-shadow-lg">{product.targetQuantity}</span>
-                    <span className="text-[8px] text-gray-500">TARGET</span>
-                  </div>
-                  <div 
-                    className={`absolute bottom-0 left-0 right-0 bg-gradient-to-t ${color} rounded-t-lg`}
-                    style={{ height: `100%` }}
-                  >
-                    <div className="absolute inset-0 bg-gradient-to-t from-transparent to-white/5"></div>
-                  </div>
-                </div>
-
-                {/* Tower 2: Achieved */}
-                <div className="flex-1 relative bg-white/5 rounded-lg overflow-hidden border border-white/5">
-                  <div className="absolute inset-0 flex items-center justify-center flex-col z-10">
-                    <span className="text-xs font-bold text-emerald-400 drop-shadow-lg">{product.achievedQuantity || 0}</span>
-                    <span className="text-[8px] text-gray-500">ACHIEVED</span>
-                  </div>
-                  <div 
-                    className={`absolute bottom-0 left-0 right-0 bg-gradient-to-t ${color} rounded-t-lg transition-all duration-1000`}
-                    style={{ height: `${Math.min(towerHeight, 100)}%` }}
-                  >
-                    <div className="absolute inset-0 bg-gradient-to-t from-transparent to-white/5"></div>
-                  </div>
+              <div className="flex items-center justify-center gap-3 mt-2">
+                <p className="text-3xl md:text-4xl font-['Orbitron'] font-bold text-purple-400 animate-pulse drop-shadow-[0_0_30px_rgba(168,85,247,0.2)]">
+                  {avgProgress}%
+                </p>
+                <div className="flex-1 max-w-[120px] bg-cyan-950/50 rounded-full h-2 overflow-hidden border border-cyan-500/20">
+                  <motion.div 
+                    className="h-full bg-gradient-to-r from-cyan-400 via-purple-400 to-emerald-400 rounded-full shadow-[0_0_20px_rgba(0,255,255,0.3)]"
+                    initial={{ width: 0 }}
+                    animate={{ width: `${Math.min(avgProgress, 100)}%` }}
+                    transition={{ duration: 1.5, ease: "easeOut" }}
+                  />
                 </div>
               </div>
+              <div className="w-20 h-1 bg-gradient-to-r from-purple-400 to-cyan-500 rounded-full mx-auto mt-2"></div>
+            </motion.div>
+          </div>
+        </motion.div>
 
-              <div className="text-center mt-2">
-                <span className="text-sm font-bold text-cyan-400">{progress}%</span>
-              </div>
-            </div>
-          );
-        })}
+        {/* ===== PRODUCT GRID ===== */}
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+          {displayData.map((product, index) => {
+            // Map Firebase field names to component props
+            const item = {
+              name: product.productName || product.name,
+              plan: product.targetQuantity || product.plan || 0,
+              achieved: product.achievedQuantity || product.achieved || 0,
+            };
+            return <ProductionCard key={product.id || index} product={item} index={index} />;
+          })}
+        </div>
+
+        {/* ===== FOOTER ===== */}
+        <div className="mt-8 text-center text-[10px] text-cyan-400/20 font-['Orbitron'] tracking-[0.3em]">
+          <p>◈ HOLOGRAPHIC PRODUCTION MONITOR v2.0 ◈</p>
+          <p className="mt-1">SIEMENS · TESLA · INDUSTRY 4.0</p>
+        </div>
       </div>
     </div>
   );
