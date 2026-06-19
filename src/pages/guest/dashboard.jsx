@@ -1,11 +1,16 @@
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/router';
 import { collection, onSnapshot } from 'firebase/firestore';
 import { db } from '../../firebase/config';
-import { Package } from 'lucide-react';
+import { Package, Shield, LogIn, User, X } from 'lucide-react';
 
 export default function GuestDashboard() {
+  const router = useRouter();
   const [plans, setPlans] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [showLogin, setShowLogin] = useState(false);
+  const [adminUsername, setAdminUsername] = useState('');
+  const [loginError, setLoginError] = useState('');
 
   useEffect(() => {
     const unsubscribePlans = onSnapshot(collection(db, 'productionPlans'), (snapshot) => {
@@ -19,6 +24,16 @@ export default function GuestDashboard() {
 
     return () => unsubscribePlans();
   }, []);
+
+  // ✅ Admin Login Handler
+  const handleAdminLogin = () => {
+    if (adminUsername === 'Shaveel@CTPT') {
+      router.push('/shaveel/dashboard');
+    } else {
+      setLoginError('❌ Invalid Admin Username');
+      setTimeout(() => setLoginError(''), 3000);
+    }
+  };
 
   const totalPlan = plans.reduce((sum, item) => sum + (item.targetQuantity || 0), 0);
   const totalAchieved = plans.reduce((sum, item) => sum + (item.achievedQuantity || 0), 0);
@@ -68,7 +83,74 @@ export default function GuestDashboard() {
         </div>
       </div>
 
-      {/* Products Section - Sirf View */}
+      {/* ===== ADMIN LOGIN SECTION ===== */}
+      <div className="bg-purple-500/10 border border-purple-500/30 rounded-2xl p-4 shadow-lg shadow-purple-500/10">
+        {!showLogin ? (
+          <button
+            onClick={() => setShowLogin(true)}
+            className="w-full bg-purple-500/20 hover:bg-purple-500/30 text-purple-400 border border-purple-500/30 py-3 rounded-xl flex items-center justify-center gap-2 transition-all duration-300 hover:scale-105"
+          >
+            <Shield size={20} />
+            🔐 Admin Login
+          </button>
+        ) : (
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <p className="text-purple-400 text-sm font-semibold">🔐 Admin Login</p>
+              <button
+                onClick={() => {
+                  setShowLogin(false);
+                  setAdminUsername('');
+                  setLoginError('');
+                }}
+                className="text-gray-400 hover:text-white transition-colors"
+              >
+                <X size={20} />
+              </button>
+            </div>
+            <div className="flex flex-col gap-3">
+              <input
+                type="text"
+                placeholder="Enter Admin Username"
+                value={adminUsername}
+                onChange={(e) => {
+                  setAdminUsername(e.target.value);
+                  setLoginError('');
+                }}
+                className="bg-white/10 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-purple-400/50 transition-all"
+                onKeyDown={(e) => e.key === 'Enter' && handleAdminLogin()}
+              />
+              {loginError && (
+                <p className="text-red-400 text-sm animate-pulse">{loginError}</p>
+              )}
+              <div className="flex gap-3">
+                <button
+                  onClick={handleAdminLogin}
+                  className="flex-1 bg-purple-500 hover:bg-purple-600 py-3 rounded-xl text-white font-semibold flex items-center justify-center gap-2 transition-all"
+                >
+                  <LogIn size={18} />
+                  Login
+                </button>
+                <button
+                  onClick={() => {
+                    setShowLogin(false);
+                    setAdminUsername('');
+                    setLoginError('');
+                  }}
+                  className="flex-1 bg-white/10 hover:bg-white/20 py-3 rounded-xl text-gray-400 transition-all"
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+            <div className="text-xs text-gray-500 text-center">
+              Username: <span className="text-purple-400">Shaveel@CTPT</span>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Products Section - View Only */}
       <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-4 shadow-lg shadow-cyan-500/10">
         <div className="flex items-center justify-between">
           <h2 className="text-sm font-semibold text-emerald-400 flex items-center gap-2">
