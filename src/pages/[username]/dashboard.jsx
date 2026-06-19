@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
 import { collection, onSnapshot } from 'firebase/firestore';
 import { db } from '../../firebase/config';
 import { 
@@ -13,7 +12,7 @@ import {
   Cpu
 } from 'lucide-react';
 
-// ===== MOCK PRODUCTION DATA =====
+// ===== PRODUCTION DATA =====
 const productionData = [
   { id: 1, name: 'HT CT', plan: 289, achieved: 0 },
   { id: 2, name: 'PT', plan: 100, achieved: 7 },
@@ -43,33 +42,19 @@ function ProductionCard({ product, index }) {
     'EARTHING SWITCH': 'from-orange-400 to-yellow-600'
   };
 
-  const glowColors = {
-    'HT CT': 'shadow-cyan-500/20',
-    'PT': 'shadow-emerald-500/20',
-    'Bushing CT': 'shadow-yellow-500/20',
-    'INSULATOR': 'shadow-rose-500/20',
-    'KE VCB Bushing': 'shadow-purple-500/20',
-    'LTCT ITR-WLT': 'shadow-pink-500/20',
-    'EARTHING SWITCH': 'shadow-orange-500/20'
-  };
-
   const color = productColors[product.name] || 'from-cyan-400 to-blue-600';
-  const glow = glowColors[product.name] || 'shadow-cyan-500/20';
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 30 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: index * 0.08, duration: 0.5 }}
-      whileHover={{ y: -8, scale: 1.02 }}
-      className="product-card group relative glass-cyan rounded-2xl p-5 border border-cyan-500/20 hover:border-cyan-400/50 transition-all duration-500"
+    <div 
+      className="product-card group glass-cyan rounded-2xl p-5 border border-cyan-500/20 hover:border-cyan-400/50 transition-all duration-500 hover:-translate-y-2 hover:scale-[1.02]"
+      style={{ animationDelay: `${index * 0.08}s` }}
     >
       {/* Animated Border Glow */}
       <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-cyan-500/10 via-transparent to-blue-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
       
       {/* Holographic Scan Line */}
       <div className="absolute inset-0 rounded-2xl overflow-hidden">
-        <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-cyan-400/50 to-transparent animate-[holographicScan_3s_ease-in-out_infinite]"></div>
+        <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-cyan-400/50 to-transparent animate-scan"></div>
       </div>
 
       {/* Product Icon / Holographic Model */}
@@ -160,7 +145,7 @@ function ProductionCard({ product, index }) {
           </span>
         )}
       </div>
-    </motion.div>
+    </div>
   );
 }
 
@@ -246,18 +231,13 @@ export default function DashboardPage({ user, username }) {
 
       <div className="relative z-10 p-4 md:p-8 max-w-7xl mx-auto">
         {/* ===== TOP SUMMARY PANEL ===== */}
-        <motion.div
-          initial={{ opacity: 0, y: -30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8 }}
-          className="glass rounded-3xl p-6 md:p-8 mb-8 border border-cyan-500/30 shadow-[0_0_60px_rgba(0,255,255,0.05)] pulse-glow relative overflow-hidden"
-        >
+        <div className="glass rounded-3xl p-6 md:p-8 mb-8 border border-cyan-500/30 shadow-[0_0_60px_rgba(0,255,255,0.05)] pulse-glow relative overflow-hidden animate-fadeIn">
           {/* Animated Border */}
           <div className="absolute inset-0 rounded-3xl bg-gradient-to-r from-cyan-500/5 via-transparent to-blue-500/5 animate-pulse"></div>
           
           {/* Energy Lines */}
-          <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-cyan-400/50 to-transparent animate-[energyLine_3s_ease-in-out_infinite]"></div>
-          <div className="absolute bottom-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-blue-400/30 to-transparent animate-[energyLine_4s_ease-in-out_infinite]"></div>
+          <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-cyan-400/50 to-transparent animate-energy"></div>
+          <div className="absolute bottom-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-blue-400/30 to-transparent animate-energy-delay"></div>
           
           {/* Header */}
           <div className="text-center relative">
@@ -287,10 +267,7 @@ export default function DashboardPage({ user, username }) {
 
           {/* Summary Cards */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
-            <motion.div
-              whileHover={{ scale: 1.02 }}
-              className="glass-cyan rounded-2xl p-5 text-center border border-cyan-500/20 hover:border-cyan-400/40 transition-all"
-            >
+            <div className="glass-cyan rounded-2xl p-5 text-center border border-cyan-500/20 hover:border-cyan-400/40 transition-all hover:scale-[1.02]">
               <div className="flex items-center justify-center gap-2 text-cyan-400/60 text-xs uppercase tracking-wider font-['Orbitron']">
                 <Target size={16} /> Global Plan Qty
               </div>
@@ -298,12 +275,9 @@ export default function DashboardPage({ user, username }) {
                 {totalPlan.toLocaleString()}
               </p>
               <div className="w-20 h-1 bg-gradient-to-r from-cyan-400 to-blue-500 rounded-full mx-auto mt-2"></div>
-            </motion.div>
+            </div>
 
-            <motion.div
-              whileHover={{ scale: 1.02 }}
-              className="glass-cyan rounded-2xl p-5 text-center border border-emerald-500/20 hover:border-emerald-400/40 transition-all"
-            >
+            <div className="glass-cyan rounded-2xl p-5 text-center border border-emerald-500/20 hover:border-emerald-400/40 transition-all hover:scale-[1.02]">
               <div className="flex items-center justify-center gap-2 text-emerald-400/60 text-xs uppercase tracking-wider font-['Orbitron']">
                 <CheckCircle size={16} /> Total Achieved
               </div>
@@ -311,12 +285,9 @@ export default function DashboardPage({ user, username }) {
                 {totalAchieved.toLocaleString()}
               </p>
               <div className="w-20 h-1 bg-gradient-to-r from-emerald-400 to-cyan-500 rounded-full mx-auto mt-2"></div>
-            </motion.div>
+            </div>
 
-            <motion.div
-              whileHover={{ scale: 1.02 }}
-              className="glass-cyan rounded-2xl p-5 text-center border border-purple-500/20 hover:border-purple-400/40 transition-all"
-            >
+            <div className="glass-cyan rounded-2xl p-5 text-center border border-purple-500/20 hover:border-purple-400/40 transition-all hover:scale-[1.02]">
               <div className="flex items-center justify-center gap-2 text-purple-400/60 text-xs uppercase tracking-wider font-['Orbitron']">
                 <TrendingUp size={16} /> Average Progress
               </div>
@@ -325,18 +296,16 @@ export default function DashboardPage({ user, username }) {
                   {avgProgress}%
                 </p>
                 <div className="flex-1 max-w-[120px] bg-cyan-950/50 rounded-full h-2 overflow-hidden border border-cyan-500/20">
-                  <motion.div 
-                    className="h-full bg-gradient-to-r from-cyan-400 via-purple-400 to-emerald-400 rounded-full shadow-[0_0_20px_rgba(0,255,255,0.3)]"
-                    initial={{ width: 0 }}
-                    animate={{ width: `${Math.min(avgProgress, 100)}%` }}
-                    transition={{ duration: 1.5, ease: "easeOut" }}
-                  />
+                  <div 
+                    className="h-full bg-gradient-to-r from-cyan-400 via-purple-400 to-emerald-400 rounded-full shadow-[0_0_20px_rgba(0,255,255,0.3)] transition-all duration-1000"
+                    style={{ width: `${Math.min(avgProgress, 100)}%` }}
+                  ></div>
                 </div>
               </div>
               <div className="w-20 h-1 bg-gradient-to-r from-purple-400 to-cyan-500 rounded-full mx-auto mt-2"></div>
-            </motion.div>
+            </div>
           </div>
-        </motion.div>
+        </div>
 
         {/* ===== PRODUCT GRID ===== */}
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
