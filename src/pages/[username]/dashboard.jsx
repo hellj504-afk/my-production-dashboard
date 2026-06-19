@@ -142,13 +142,13 @@ export default function DashboardPage({ user, username }) {
   const avgProgress = totalPlan > 0 ? ((totalAchieved / totalPlan) * 100).toFixed(1) : 0;
 
   const productColors = {
-    'HT CT': 'from-cyan-400 to-cyan-600',
-    'PT': 'from-emerald-400 to-emerald-600',
-    'Bushing CT': 'from-yellow-400 to-yellow-600',
-    'INSULATOR': 'from-rose-400 to-rose-600',
-    'KE VCB Bushing': 'from-purple-400 to-purple-600',
-    'LTCT ITR-WLT': 'from-pink-400 to-pink-600',
-    'EARTHING SWITCH': 'from-orange-400 to-orange-600'
+    'HT CT': 'from-cyan-400 to-blue-600',
+    'PT': 'from-emerald-400 to-cyan-600',
+    'Bushing CT': 'from-yellow-400 to-amber-600',
+    'INSULATOR': 'from-rose-400 to-red-600',
+    'KE VCB Bushing': 'from-purple-400 to-indigo-600',
+    'LTCT ITR-WLT': 'from-pink-400 to-rose-600',
+    'EARTHING SWITCH': 'from-orange-400 to-yellow-600'
   };
 
   if (loading) {
@@ -164,35 +164,40 @@ export default function DashboardPage({ user, username }) {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="text-center py-4">
-        <h1 className="text-3xl md:text-4xl font-bold text-white tracking-wider bg-gradient-to-r from-cyan-400 to-purple-400 bg-clip-text text-transparent">
-          ⚡ DAILY PRODUCTION PROGRESS
+      {/* ===== HEADER WITH 3D NEON EFFECT ===== */}
+      <div className="relative text-center py-6">
+        {/* 3D Shadow Effect */}
+        <div className="absolute inset-0 bg-gradient-to-r from-cyan-500/10 via-transparent to-purple-500/10 blur-3xl"></div>
+        
+        <h1 className="text-4xl md:text-5xl font-bold tracking-wider relative z-10">
+          <span className="bg-gradient-to-r from-cyan-400 via-blue-400 to-purple-400 bg-clip-text text-transparent drop-shadow-[0_0_30px_rgba(34,211,238,0.3)]">
+            WIP PRODUCTION SUMMARY
+          </span>
         </h1>
-        <p className="text-cyan-400/60 text-sm mt-1 animate-pulse">
+        <p className="text-cyan-400/60 text-sm mt-2 animate-pulse relative z-10">
           {new Date().toLocaleString('default', { month: 'long', year: 'numeric' })} - DAY {new Date().getDate()}
         </p>
-        <div className="flex justify-center gap-4 mt-2 text-xs text-gray-500">
-          <span className="flex items-center gap-1">
+        <div className="flex justify-center gap-6 mt-3 text-xs text-gray-500 relative z-10">
+          <span className="flex items-center gap-2">
             <span className="w-2 h-2 bg-green-500 rounded-full animate-ping"></span>
-            LIVE
+            <span className="text-cyan-400/80">● LIVE</span>
           </span>
-          <span>|</span>
-          <span>🔄 Auto-sync</span>
+          <span className="text-gray-600">|</span>
+          <span className="text-cyan-400/60">🔄 Auto-sync</span>
         </div>
       </div>
 
-      {/* Live Notes */}
-      <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-4 shadow-lg shadow-cyan-500/10">
+      {/* ===== LIVE NOTES ===== */}
+      <div className="bg-cyan-950/20 backdrop-blur-xl border border-cyan-500/20 rounded-2xl p-4 shadow-[0_0_40px_rgba(34,211,238,0.1)]">
         <div className="flex items-center justify-between mb-3">
           <h2 className="text-sm font-semibold text-cyan-400 flex items-center gap-2">
             <span className="w-2 h-2 bg-cyan-400 rounded-full animate-pulse"></span>
-            📢 LIVE NOTES
+            📡 LIVE NOTES
           </h2>
           {user?.permissions?.createLiveNote && (
             <button
               onClick={() => setShowNoteInput(!showNoteInput)}
-              className="bg-cyan-400/20 hover:bg-cyan-400/30 text-cyan-400 px-3 py-1 rounded-lg text-sm flex items-center gap-1 transition-all"
+              className="bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-400 px-3 py-1 rounded-lg text-sm flex items-center gap-1 transition-all border border-cyan-500/30"
             >
               <Plus size={16} /> Add Note
             </button>
@@ -206,7 +211,7 @@ export default function DashboardPage({ user, username }) {
               value={noteText}
               onChange={(e) => setNoteText(e.target.value)}
               placeholder="Write a note..."
-              className="flex-1 bg-white/10 border border-white/10 rounded-lg px-4 py-2 text-white text-sm focus:outline-none focus:border-cyan-400/50"
+              className="flex-1 bg-cyan-950/50 border border-cyan-500/30 rounded-lg px-4 py-2 text-white text-sm focus:outline-none focus:border-cyan-400/70"
               onKeyDown={(e) => e.key === 'Enter' && addNote()}
             />
             <button
@@ -225,8 +230,8 @@ export default function DashboardPage({ user, username }) {
             notes.map((note) => (
               <div
                 key={note.id}
-                className={`flex items-center justify-between bg-white/5 border rounded-lg px-3 py-2 text-sm ${
-                  note.isPinned ? 'border-yellow-400/40' : 'border-white/5'
+                className={`flex items-center justify-between bg-cyan-950/30 border rounded-lg px-3 py-2 text-sm ${
+                  note.isPinned ? 'border-yellow-500/40' : 'border-cyan-500/20'
                 }`}
               >
                 <div className="flex items-center gap-2 flex-1">
@@ -250,9 +255,9 @@ export default function DashboardPage({ user, username }) {
         </div>
       </div>
 
-      {/* Products Section */}
+      {/* ===== PRODUCTS SECTION ===== */}
       {(user?.permissions?.viewPlans || user?.role === 'super_admin') && (
-        <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-4 shadow-lg shadow-cyan-500/10">
+        <div className="bg-cyan-950/20 backdrop-blur-xl border border-cyan-500/20 rounded-2xl p-4 shadow-[0_0_40px_rgba(34,211,238,0.1)]">
           <div className="flex items-center justify-between">
             <h2 className="text-sm font-semibold text-emerald-400 flex items-center gap-2">
               <Package size={18} />
@@ -262,7 +267,7 @@ export default function DashboardPage({ user, username }) {
             {user?.permissions?.createPlan && (
               <button
                 onClick={() => setShowAddProduct(!showAddProduct)}
-                className="bg-emerald-400/20 hover:bg-emerald-400/30 text-emerald-400 px-3 py-1 rounded-lg text-sm flex items-center gap-1 transition-all"
+                className="bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-400 px-3 py-1 rounded-lg text-sm flex items-center gap-1 transition-all border border-emerald-500/30"
               >
                 <Plus size={16} /> Add Product
               </button>
@@ -276,14 +281,14 @@ export default function DashboardPage({ user, username }) {
                 placeholder="Product name"
                 value={newProduct.productName}
                 onChange={(e) => setNewProduct({ ...newProduct, productName: e.target.value })}
-                className="flex-1 bg-white/10 border border-white/10 rounded-lg px-4 py-2 text-white text-sm focus:outline-none focus:border-emerald-400/50"
+                className="flex-1 bg-cyan-950/50 border border-cyan-500/30 rounded-lg px-4 py-2 text-white text-sm focus:outline-none focus:border-cyan-400/70"
               />
               <input
                 type="number"
                 placeholder="Target"
                 value={newProduct.targetQuantity}
                 onChange={(e) => setNewProduct({ ...newProduct, targetQuantity: e.target.value })}
-                className="w-24 bg-white/10 border border-white/10 rounded-lg px-4 py-2 text-white text-sm focus:outline-none focus:border-emerald-400/50"
+                className="w-24 bg-cyan-950/50 border border-cyan-500/30 rounded-lg px-4 py-2 text-white text-sm focus:outline-none focus:border-cyan-400/70"
               />
               <button
                 onClick={addProduct}
@@ -304,7 +309,7 @@ export default function DashboardPage({ user, username }) {
             {plans.map((product) => (
               <div
                 key={product.id}
-                className="flex items-center gap-1 bg-white/5 border border-white/10 rounded-full px-3 py-1 text-sm text-gray-300 hover:border-cyan-400/30 transition-all group"
+                className="flex items-center gap-1 bg-cyan-950/30 border border-cyan-500/20 rounded-full px-3 py-1 text-sm text-gray-300 hover:border-cyan-400/40 transition-all group"
               >
                 {editingProduct && editingProduct.id === product.id && user?.permissions?.editPlan ? (
                   <div className="flex items-center gap-2">
@@ -312,13 +317,13 @@ export default function DashboardPage({ user, username }) {
                       type="text"
                       value={editingProduct.productName}
                       onChange={(e) => setEditingProduct({ ...editingProduct, productName: e.target.value })}
-                      className="bg-white/10 border border-white/10 rounded px-2 py-0.5 text-white text-sm w-24 focus:outline-none focus:border-emerald-400/50"
+                      className="bg-cyan-950/50 border border-cyan-500/30 rounded px-2 py-0.5 text-white text-sm w-24 focus:outline-none focus:border-cyan-400/70"
                     />
                     <input
                       type="number"
                       value={editingProduct.targetQuantity}
                       onChange={(e) => setEditingProduct({ ...editingProduct, targetQuantity: e.target.value })}
-                      className="bg-white/10 border border-white/10 rounded px-2 py-0.5 text-white text-sm w-16 focus:outline-none focus:border-emerald-400/50"
+                      className="bg-cyan-950/50 border border-cyan-500/30 rounded px-2 py-0.5 text-white text-sm w-16 focus:outline-none focus:border-cyan-400/70"
                     />
                     <button onClick={saveEdit} className="text-emerald-400 hover:text-emerald-300">
                       <Check size={16} />
@@ -349,88 +354,140 @@ export default function DashboardPage({ user, username }) {
         </div>
       )}
 
-      {/* Summary Cards */}
+      {/* ===== 3D NEON SUMMARY CARDS ===== */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-6 text-center shadow-lg shadow-cyan-500/10 hover:shadow-cyan-500/20 transition-all">
-          <p className="text-gray-400 text-sm uppercase tracking-wider">Global Plan Qty</p>
-          <p className="text-3xl font-bold text-white mt-2">{totalPlan.toLocaleString()}</p>
+        <div className="relative bg-cyan-950/30 backdrop-blur-xl border border-cyan-500/30 rounded-2xl p-6 text-center shadow-[0_0_50px_rgba(34,211,238,0.15)] hover:shadow-[0_0_70px_rgba(34,211,238,0.25)] transition-all duration-500 overflow-hidden group">
+          <div className="absolute inset-0 bg-gradient-to-r from-cyan-500/5 via-transparent to-blue-500/5 group-hover:scale-150 transition-transform duration-700"></div>
+          <p className="text-gray-400 text-sm uppercase tracking-wider relative z-10">GLOBAL PLAN QTY</p>
+          <p className="text-4xl font-bold text-white mt-2 relative z-10 drop-shadow-[0_0_20px_rgba(34,211,238,0.3)]">
+            {totalPlan.toLocaleString()}
+          </p>
+          <div className="absolute -bottom-10 -right-10 w-40 h-40 bg-cyan-500/5 rounded-full blur-2xl group-hover:bg-cyan-500/10 transition-all"></div>
         </div>
-        <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-6 text-center shadow-lg shadow-emerald-500/10 hover:shadow-emerald-500/20 transition-all">
-          <p className="text-gray-400 text-sm uppercase tracking-wider">Total Achieved</p>
-          <p className="text-3xl font-bold text-emerald-400 mt-2 animate-pulse">{totalAchieved.toLocaleString()}</p>
+        
+        <div className="relative bg-cyan-950/30 backdrop-blur-xl border border-emerald-500/30 rounded-2xl p-6 text-center shadow-[0_0_50px_rgba(52,211,153,0.15)] hover:shadow-[0_0_70px_rgba(52,211,153,0.25)] transition-all duration-500 overflow-hidden group">
+          <div className="absolute inset-0 bg-gradient-to-r from-emerald-500/5 via-transparent to-cyan-500/5 group-hover:scale-150 transition-transform duration-700"></div>
+          <p className="text-gray-400 text-sm uppercase tracking-wider relative z-10">TOTAL ACHIEVED</p>
+          <p className="text-4xl font-bold text-emerald-400 mt-2 relative z-10 animate-pulse drop-shadow-[0_0_20px_rgba(52,211,153,0.3)]">
+            {totalAchieved.toLocaleString()}
+          </p>
+          <div className="absolute -bottom-10 -left-10 w-40 h-40 bg-emerald-500/5 rounded-full blur-2xl group-hover:bg-emerald-500/10 transition-all"></div>
         </div>
-        <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-6 text-center shadow-lg shadow-cyan-500/10 hover:shadow-cyan-500/20 transition-all">
-          <p className="text-gray-400 text-sm uppercase tracking-wider">Average Progress</p>
-          <div className="flex items-center justify-center gap-4 mt-2">
-            <p className="text-3xl font-bold text-cyan-400 animate-pulse">{avgProgress}%</p>
-            <div className="flex-1 max-w-[100px] bg-white/10 rounded-full h-2">
-              <div className="bg-gradient-to-r from-cyan-400 to-purple-500 h-2 rounded-full transition-all duration-500" style={{ width: `${Math.min(avgProgress, 100)}%` }}></div>
+        
+        <div className="relative bg-cyan-950/30 backdrop-blur-xl border border-purple-500/30 rounded-2xl p-6 text-center shadow-[0_0_50px_rgba(168,85,247,0.15)] hover:shadow-[0_0_70px_rgba(168,85,247,0.25)] transition-all duration-500 overflow-hidden group">
+          <div className="absolute inset-0 bg-gradient-to-r from-purple-500/5 via-transparent to-cyan-500/5 group-hover:scale-150 transition-transform duration-700"></div>
+          <p className="text-gray-400 text-sm uppercase tracking-wider relative z-10">AVERAGE PROGRESS</p>
+          <div className="flex items-center justify-center gap-4 mt-2 relative z-10">
+            <p className="text-4xl font-bold text-purple-400 animate-pulse drop-shadow-[0_0_20px_rgba(168,85,247,0.3)]">
+              {avgProgress}%
+            </p>
+            <div className="flex-1 max-w-[100px] bg-cyan-950/50 rounded-full h-3 overflow-hidden border border-cyan-500/20">
+              <div 
+                className="bg-gradient-to-r from-cyan-400 via-purple-400 to-emerald-400 h-3 rounded-full transition-all duration-500 shadow-[0_0_20px_rgba(34,211,238,0.3)]"
+                style={{ width: `${Math.min(avgProgress, 100)}%` }}
+              ></div>
             </div>
           </div>
+          <div className="absolute -bottom-10 -right-10 w-40 h-40 bg-purple-500/5 rounded-full blur-2xl group-hover:bg-purple-500/10 transition-all"></div>
         </div>
       </div>
 
-      {/* ===== 2 TOWER BARS (Plan + Achieved) ===== */}
+      {/* ===== 3D NEON TOWERS ===== */}
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
         {plans.map((product) => {
           const progress = product.targetQuantity > 0 ? ((product.achievedQuantity / product.targetQuantity) * 100).toFixed(1) : 0;
-          const color = productColors[product.productName] || 'from-gray-400 to-gray-600';
+          const color = productColors[product.productName] || 'from-cyan-400 to-blue-600';
           const towerHeight = Math.min(progress, 100);
-          const planHeight = 100; // Full height for plan
 
           return (
-            <div key={product.id} className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-4 shadow-lg shadow-cyan-500/5 hover:shadow-cyan-500/20 transition-all duration-300 hover:scale-105">
-              <h3 className="text-lg font-semibold text-white tracking-wide text-center">{product.productName}</h3>
+            <div key={product.id} className="relative group">
+              {/* 3D Shadow/Glow Background */}
+              <div className="absolute inset-0 bg-gradient-to-t from-cyan-500/5 to-transparent blur-2xl group-hover:from-cyan-500/10 transition-all duration-500"></div>
               
-              {/* 2 Towers Side by Side */}
-              <div className="flex gap-2 mt-3 h-48">
-                {/* Tower 1: Plan (Target) */}
-                <div className="flex-1 relative bg-white/5 rounded-lg overflow-hidden border border-white/5">
-                  <div className="absolute inset-0 flex items-center justify-center flex-col z-10">
-                    <span className="text-xs font-bold text-white drop-shadow-lg">{product.targetQuantity}</span>
+              <div className="relative bg-cyan-950/30 backdrop-blur-xl border border-cyan-500/20 rounded-2xl p-4 shadow-[0_0_30px_rgba(34,211,238,0.05)] hover:shadow-[0_0_50px_rgba(34,211,238,0.15)] transition-all duration-500 hover:scale-105">
+                {/* Product Name */}
+                <h3 className="text-lg font-bold text-white tracking-wide text-center drop-shadow-[0_0_15px_rgba(34,211,238,0.2)]">
+                  {product.productName}
+                </h3>
+                
+                {/* 3D Towers Container */}
+                <div className="flex gap-3 mt-3 h-52 perspective-1000">
+                  {/* Tower 1: Target (Plan) - Neon Blue */}
+                  <div className="flex-1 relative transform-style-3d">
+                    <div className="absolute inset-0 flex items-center justify-center flex-col z-20">
+                      <span className="text-xs font-bold text-white drop-shadow-[0_0_10px_rgba(34,211,238,0.5)]">
+                        {product.targetQuantity}
+                      </span>
+                      <span className="text-[8px] text-cyan-400/60 uppercase tracking-wider">TARGET</span>
+                    </div>
+                    
+                    {/* 3D Side Effect - Left */}
+                    <div className="absolute top-0 left-0 w-1 h-full bg-gradient-to-b from-cyan-400/30 to-transparent transform -translate-x-1 skew-y-12"></div>
+                    
+                    {/* Main Tower - Target */}
+                    <div 
+                      className={`absolute bottom-0 left-0 right-0 bg-gradient-to-t ${color} transition-all duration-1000 rounded-t-lg shadow-[0_0_40px_rgba(34,211,238,0.2)] border border-cyan-400/20`}
+                      style={{ height: `100%` }}
+                    >
+                      {/* 3D Top Face */}
+                      <div className="absolute -top-1 left-0 right-0 h-2 bg-gradient-to-t from-transparent to-cyan-400/20 rounded-t-lg"></div>
+                      
+                      {/* Water Wave Animation */}
+                      <div className="absolute inset-0 bg-gradient-to-t from-transparent via-cyan-400/5 to-transparent animate-[wave_2s_ease-in-out_infinite]"></div>
+                      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-cyan-400/10 to-transparent animate-[wave_3s_ease-in-out_infinite]"></div>
+                      
+                      {/* Neon Glow */}
+                      <div className="absolute inset-0 shadow-[inset_0_0_30px_rgba(34,211,238,0.1)]"></div>
+                      <div className="absolute top-0 left-1/4 right-1/4 h-0.5 bg-cyan-400/30 rounded-full animate-pulse"></div>
+                    </div>
+                    
+                    {/* 3D Side Effect - Right */}
+                    <div className="absolute top-0 right-0 w-1 h-full bg-gradient-to-b from-cyan-400/10 to-transparent transform translate-x-1 skew-y-12"></div>
                   </div>
-                  {/* Neon Glow - Plan */}
-                  <div 
-                    className={`absolute bottom-0 left-0 right-0 bg-gradient-to-t ${color} blur-xl opacity-40 transition-all duration-1000`}
-                    style={{ height: `${planHeight}%` }}
-                  ></div>
-                  {/* Plan Tower */}
-                  <div 
-                    className={`absolute bottom-0 left-0 right-0 bg-gradient-to-t ${color} transition-all duration-1000 rounded-t-lg shadow-lg shadow-cyan-500/20`}
-                    style={{ height: `${planHeight}%` }}
-                  >
-                    <div className="absolute inset-0 bg-gradient-to-t from-transparent to-white/10 animate-[wave_2s_ease-in-out_infinite]"></div>
-                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent animate-[wave_3s_ease-in-out_infinite]"></div>
-                    <div className="absolute top-0 left-0 right-0 h-1 bg-white/30 rounded-full animate-pulse"></div>
+
+                  {/* Tower 2: Achieved - Neon Cyan/Green */}
+                  <div className="flex-1 relative transform-style-3d">
+                    <div className="absolute inset-0 flex items-center justify-center flex-col z-20">
+                      <span className="text-xs font-bold text-emerald-400 drop-shadow-[0_0_10px_rgba(52,211,153,0.5)]">
+                        {product.achievedQuantity || 0}
+                      </span>
+                      <span className="text-[8px] text-emerald-400/60 uppercase tracking-wider">ACHIEVED</span>
+                    </div>
+                    
+                    {/* 3D Side Effect - Left */}
+                    <div className="absolute top-0 left-0 w-1 h-full bg-gradient-to-b from-emerald-400/30 to-transparent transform -translate-x-1 skew-y-12"></div>
+                    
+                    {/* Main Tower - Achieved */}
+                    <div 
+                      className={`absolute bottom-0 left-0 right-0 bg-gradient-to-t ${color} transition-all duration-1000 rounded-t-lg shadow-[0_0_40px_rgba(52,211,153,0.2)] border border-emerald-400/20`}
+                      style={{ height: `${Math.min(towerHeight, 100)}%` }}
+                    >
+                      {/* 3D Top Face */}
+                      <div className="absolute -top-1 left-0 right-0 h-2 bg-gradient-to-t from-transparent to-emerald-400/20 rounded-t-lg"></div>
+                      
+                      {/* Water Wave Animation */}
+                      <div className="absolute inset-0 bg-gradient-to-t from-transparent via-emerald-400/5 to-transparent animate-[wave_2s_ease-in-out_infinite]"></div>
+                      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-emerald-400/10 to-transparent animate-[wave_3s_ease-in-out_infinite]"></div>
+                      
+                      {/* Shimmer Effect */}
+                      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent animate-[shimmer_2s_infinite]"></div>
+                      
+                      {/* Neon Glow */}
+                      <div className="absolute inset-0 shadow-[inset_0_0_30px_rgba(52,211,153,0.1)]"></div>
+                      <div className="absolute top-0 left-1/4 right-1/4 h-0.5 bg-emerald-400/30 rounded-full animate-pulse"></div>
+                    </div>
+                    
+                    {/* 3D Side Effect - Right */}
+                    <div className="absolute top-0 right-0 w-1 h-full bg-gradient-to-b from-emerald-400/10 to-transparent transform translate-x-1 skew-y-12"></div>
                   </div>
                 </div>
 
-                {/* Tower 2: Achieved */}
-                <div className="flex-1 relative bg-white/5 rounded-lg overflow-hidden border border-white/5">
-                  <div className="absolute inset-0 flex items-center justify-center flex-col z-10">
-                    <span className="text-xs font-bold text-emerald-400 drop-shadow-lg">{product.achievedQuantity || 0}</span>
-                  </div>
-                  {/* Neon Glow - Achieved */}
-                  <div 
-                    className={`absolute bottom-0 left-0 right-0 bg-gradient-to-t ${color} blur-xl opacity-40 transition-all duration-1000`}
-                    style={{ height: `${Math.min(towerHeight, 100)}%` }}
-                  ></div>
-                  {/* Achieved Tower */}
-                  <div 
-                    className={`absolute bottom-0 left-0 right-0 bg-gradient-to-t ${color} transition-all duration-1000 rounded-t-lg shadow-lg shadow-cyan-500/20`}
-                    style={{ height: `${Math.min(towerHeight, 100)}%` }}
-                  >
-                    <div className="absolute inset-0 bg-gradient-to-t from-transparent to-white/10 animate-[wave_2s_ease-in-out_infinite]"></div>
-                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent animate-[wave_3s_ease-in-out_infinite]"></div>
-                    <div className="absolute top-0 left-0 right-0 h-1 bg-white/30 rounded-full animate-pulse"></div>
-                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent animate-[shimmer_2s_infinite]"></div>
-                  </div>
+                {/* Progress Percentage */}
+                <div className="text-center mt-3">
+                  <span className="text-sm font-bold text-cyan-400 animate-pulse drop-shadow-[0_0_15px_rgba(34,211,238,0.3)]">
+                    {progress}%
+                  </span>
                 </div>
-              </div>
-
-              {/* Progress Label */}
-              <div className="text-center mt-2">
-                <span className="text-xs font-bold text-cyan-400 animate-pulse">{progress}%</span>
               </div>
             </div>
           );
