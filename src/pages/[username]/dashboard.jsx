@@ -164,11 +164,9 @@ export default function DashboardPage({ user, username }) {
 
   return (
     <div className="space-y-6">
-      {/* ===== HEADER WITH 3D NEON EFFECT ===== */}
+      {/* Header */}
       <div className="relative text-center py-6">
-        {/* 3D Shadow Effect */}
         <div className="absolute inset-0 bg-gradient-to-r from-cyan-500/10 via-transparent to-purple-500/10 blur-3xl"></div>
-        
         <h1 className="text-4xl md:text-5xl font-bold tracking-wider relative z-10">
           <span className="bg-gradient-to-r from-cyan-400 via-blue-400 to-purple-400 bg-clip-text text-transparent drop-shadow-[0_0_30px_rgba(34,211,238,0.3)]">
             WIP PRODUCTION SUMMARY
@@ -187,7 +185,7 @@ export default function DashboardPage({ user, username }) {
         </div>
       </div>
 
-      {/* ===== LIVE NOTES ===== */}
+      {/* Live Notes */}
       <div className="bg-cyan-950/20 backdrop-blur-xl border border-cyan-500/20 rounded-2xl p-4 shadow-[0_0_40px_rgba(34,211,238,0.1)]">
         <div className="flex items-center justify-between mb-3">
           <h2 className="text-sm font-semibold text-cyan-400 flex items-center gap-2">
@@ -255,7 +253,7 @@ export default function DashboardPage({ user, username }) {
         </div>
       </div>
 
-      {/* ===== PRODUCTS SECTION ===== */}
+      {/* Products Section */}
       {(user?.permissions?.viewPlans || user?.role === 'super_admin') && (
         <div className="bg-cyan-950/20 backdrop-blur-xl border border-cyan-500/20 rounded-2xl p-4 shadow-[0_0_40px_rgba(34,211,238,0.1)]">
           <div className="flex items-center justify-between">
@@ -354,7 +352,7 @@ export default function DashboardPage({ user, username }) {
         </div>
       )}
 
-      {/* ===== 3D NEON SUMMARY CARDS ===== */}
+      {/* Summary Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <div className="relative bg-cyan-950/30 backdrop-blur-xl border border-cyan-500/30 rounded-2xl p-6 text-center shadow-[0_0_50px_rgba(34,211,238,0.15)] hover:shadow-[0_0_70px_rgba(34,211,238,0.25)] transition-all duration-500 overflow-hidden group">
           <div className="absolute inset-0 bg-gradient-to-r from-cyan-500/5 via-transparent to-blue-500/5 group-hover:scale-150 transition-transform duration-700"></div>
@@ -392,7 +390,7 @@ export default function DashboardPage({ user, username }) {
         </div>
       </div>
 
-      {/* ===== 3D NEON TOWERS ===== */}
+      {/* 3D Neon Towers */}
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
         {plans.map((product) => {
           const progress = product.targetQuantity > 0 ? ((product.achievedQuantity / product.targetQuantity) * 100).toFixed(1) : 0;
@@ -401,88 +399,54 @@ export default function DashboardPage({ user, username }) {
 
           return (
             <div key={product.id} className="relative group">
-              {/* 3D Shadow/Glow Background */}
               <div className="absolute inset-0 bg-gradient-to-t from-cyan-500/5 to-transparent blur-2xl group-hover:from-cyan-500/10 transition-all duration-500"></div>
               
               <div className="relative bg-cyan-950/30 backdrop-blur-xl border border-cyan-500/20 rounded-2xl p-4 shadow-[0_0_30px_rgba(34,211,238,0.05)] hover:shadow-[0_0_50px_rgba(34,211,238,0.15)] transition-all duration-500 hover:scale-105">
-                {/* Product Name */}
                 <h3 className="text-lg font-bold text-white tracking-wide text-center drop-shadow-[0_0_15px_rgba(34,211,238,0.2)]">
                   {product.productName}
                 </h3>
                 
-                {/* 3D Towers Container */}
-                <div className="flex gap-3 mt-3 h-52 perspective-1000">
-                  {/* Tower 1: Target (Plan) - Neon Blue */}
-                  <div className="flex-1 relative transform-style-3d">
+                <div className="flex gap-3 mt-3 h-52">
+                  {/* Tower 1: Target */}
+                  <div className="flex-1 relative">
                     <div className="absolute inset-0 flex items-center justify-center flex-col z-20">
                       <span className="text-xs font-bold text-white drop-shadow-[0_0_10px_rgba(34,211,238,0.5)]">
                         {product.targetQuantity}
                       </span>
                       <span className="text-[8px] text-cyan-400/60 uppercase tracking-wider">TARGET</span>
                     </div>
-                    
-                    {/* 3D Side Effect - Left */}
-                    <div className="absolute top-0 left-0 w-1 h-full bg-gradient-to-b from-cyan-400/30 to-transparent transform -translate-x-1 skew-y-12"></div>
-                    
-                    {/* Main Tower - Target */}
                     <div 
                       className={`absolute bottom-0 left-0 right-0 bg-gradient-to-t ${color} transition-all duration-1000 rounded-t-lg shadow-[0_0_40px_rgba(34,211,238,0.2)] border border-cyan-400/20`}
                       style={{ height: `100%` }}
                     >
-                      {/* 3D Top Face */}
-                      <div className="absolute -top-1 left-0 right-0 h-2 bg-gradient-to-t from-transparent to-cyan-400/20 rounded-t-lg"></div>
-                      
-                      {/* Water Wave Animation */}
                       <div className="absolute inset-0 bg-gradient-to-t from-transparent via-cyan-400/5 to-transparent animate-[wave_2s_ease-in-out_infinite]"></div>
                       <div className="absolute inset-0 bg-gradient-to-r from-transparent via-cyan-400/10 to-transparent animate-[wave_3s_ease-in-out_infinite]"></div>
-                      
-                      {/* Neon Glow */}
                       <div className="absolute inset-0 shadow-[inset_0_0_30px_rgba(34,211,238,0.1)]"></div>
                       <div className="absolute top-0 left-1/4 right-1/4 h-0.5 bg-cyan-400/30 rounded-full animate-pulse"></div>
                     </div>
-                    
-                    {/* 3D Side Effect - Right */}
-                    <div className="absolute top-0 right-0 w-1 h-full bg-gradient-to-b from-cyan-400/10 to-transparent transform translate-x-1 skew-y-12"></div>
                   </div>
 
-                  {/* Tower 2: Achieved - Neon Cyan/Green */}
-                  <div className="flex-1 relative transform-style-3d">
+                  {/* Tower 2: Achieved */}
+                  <div className="flex-1 relative">
                     <div className="absolute inset-0 flex items-center justify-center flex-col z-20">
                       <span className="text-xs font-bold text-emerald-400 drop-shadow-[0_0_10px_rgba(52,211,153,0.5)]">
                         {product.achievedQuantity || 0}
                       </span>
                       <span className="text-[8px] text-emerald-400/60 uppercase tracking-wider">ACHIEVED</span>
                     </div>
-                    
-                    {/* 3D Side Effect - Left */}
-                    <div className="absolute top-0 left-0 w-1 h-full bg-gradient-to-b from-emerald-400/30 to-transparent transform -translate-x-1 skew-y-12"></div>
-                    
-                    {/* Main Tower - Achieved */}
                     <div 
                       className={`absolute bottom-0 left-0 right-0 bg-gradient-to-t ${color} transition-all duration-1000 rounded-t-lg shadow-[0_0_40px_rgba(52,211,153,0.2)] border border-emerald-400/20`}
                       style={{ height: `${Math.min(towerHeight, 100)}%` }}
                     >
-                      {/* 3D Top Face */}
-                      <div className="absolute -top-1 left-0 right-0 h-2 bg-gradient-to-t from-transparent to-emerald-400/20 rounded-t-lg"></div>
-                      
-                      {/* Water Wave Animation */}
                       <div className="absolute inset-0 bg-gradient-to-t from-transparent via-emerald-400/5 to-transparent animate-[wave_2s_ease-in-out_infinite]"></div>
                       <div className="absolute inset-0 bg-gradient-to-r from-transparent via-emerald-400/10 to-transparent animate-[wave_3s_ease-in-out_infinite]"></div>
-                      
-                      {/* Shimmer Effect */}
                       <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent animate-[shimmer_2s_infinite]"></div>
-                      
-                      {/* Neon Glow */}
                       <div className="absolute inset-0 shadow-[inset_0_0_30px_rgba(52,211,153,0.1)]"></div>
                       <div className="absolute top-0 left-1/4 right-1/4 h-0.5 bg-emerald-400/30 rounded-full animate-pulse"></div>
                     </div>
-                    
-                    {/* 3D Side Effect - Right */}
-                    <div className="absolute top-0 right-0 w-1 h-full bg-gradient-to-b from-emerald-400/10 to-transparent transform translate-x-1 skew-y-12"></div>
                   </div>
                 </div>
 
-                {/* Progress Percentage */}
                 <div className="text-center mt-3">
                   <span className="text-sm font-bold text-cyan-400 animate-pulse drop-shadow-[0_0_15px_rgba(34,211,238,0.3)]">
                     {progress}%
