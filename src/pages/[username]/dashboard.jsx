@@ -381,4 +381,44 @@ export default function DashboardPage({ user, username }) {
             <div key={product.id} className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-4 shadow-lg shadow-cyan-500/5 hover:shadow-cyan-500/20 transition-all duration-300 hover:scale-105">
               <h3 className="text-lg font-semibold text-white tracking-wide text-center">{product.productName}</h3>
               
-              <div
+              <div className="relative w-full h-48 bg-white/5 rounded-lg mt-3 overflow-hidden border border-white/5">
+                <div className="absolute top-0 left-0 right-0 border-t-2 border-dashed border-white/20 z-10"></div>
+                
+                <div 
+                  className={`absolute bottom-0 left-0 right-0 bg-gradient-to-t ${color} transition-all duration-1000 rounded-t-lg shadow-lg shadow-cyan-500/20 overflow-hidden`}
+                  style={{ height: `${Math.min(towerHeight, 100)}%` }}
+                >
+                  <div className="absolute inset-0 bg-gradient-to-t from-transparent to-white/10 animate-[wave_2s_ease-in-out_infinite]"></div>
+                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent animate-[wave_3s_ease-in-out_infinite]"></div>
+                  <div className="absolute top-0 left-0 right-0 h-1 bg-white/30 rounded-full animate-pulse"></div>
+                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent animate-[shimmer_2s_infinite]"></div>
+                </div>
+                
+                <div 
+                  className={`absolute bottom-0 left-0 right-0 bg-gradient-to-t ${color} blur-xl opacity-30 transition-all duration-1000`}
+                  style={{ height: `${Math.min(towerHeight, 100)}%` }}
+                ></div>
+                
+                <div className="absolute inset-0 flex items-center justify-center flex-col z-10">
+                  <span className="text-2xl font-bold text-white drop-shadow-lg animate-pulse">{progress}%</span>
+                  <span className="text-xs text-gray-400">{product.achievedQuantity || 0} / {product.targetQuantity}</span>
+                </div>
+              </div>
+              
+              <div className="flex justify-between text-xs text-gray-400 mt-2 px-1">
+                <span className="flex items-center gap-1">
+                  <span className="w-2 h-2 bg-cyan-400 rounded-full animate-pulse"></span>
+                  🎯 {product.targetQuantity}
+                </span>
+                <span className="text-emerald-400 flex items-center gap-1">
+                  <span className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></span>
+                  ✅ {product.achievedQuantity || 0}
+                </span>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
