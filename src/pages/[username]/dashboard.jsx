@@ -2,159 +2,25 @@ import { useState, useEffect } from 'react';
 import { collection, onSnapshot } from 'firebase/firestore';
 import { db } from '../../firebase/config';
 import { 
-  Package, 
-  TrendingUp, 
-  Target, 
-  CheckCircle, 
-  AlertCircle,
-  Zap,
-  Activity,
-  Cpu
+  Package, TrendingUp, Target, CheckCircle, AlertCircle,
+  Zap, Activity, Cpu, BarChart3, Gauge, Factory
 } from 'lucide-react';
 
 // ===== PRODUCTION DATA =====
 const productionData = [
-  { id: 1, name: 'HT CT', plan: 289, achieved: 0 },
-  { id: 2, name: 'PT', plan: 100, achieved: 7 },
+  { id: 1, name: 'HT CT', plan: 289, achieved: 200 },
+  { id: 2, name: 'PT', plan: 500, achieved: 0 },
   { id: 3, name: 'Bushing CT', plan: 13, achieved: 0 },
-  { id: 4, name: 'INSULATOR', plan: 2400, achieved: 101 },
+  { id: 4, name: 'INSULATOR', plan: 1000, achieved: 500 },
   { id: 5, name: 'KE VCB Bushing', plan: 0, achieved: 0 },
   { id: 6, name: 'LTCT ITR-WLT', plan: 6, achieved: 0 },
-  { id: 7, name: 'EARTHING SWITCH', plan: 20, achieved: 0 },
+  { id: 7, name: 'EARTHING SWITCH', plan: 200, achieved: 0 },
 ];
 
-// ===== PRODUCT CARD COMPONENT =====
-function ProductionCard({ product, index }) {
-  const progress = product.plan > 0 
-    ? ((product.achieved / product.plan) * 100).toFixed(1) 
-    : 0;
-  
-  const circumference = 2 * Math.PI * 35;
-  const offset = circumference - (progress / 100) * circumference;
-
-  const productColors = {
-    'HT CT': 'from-cyan-400 to-blue-600',
-    'PT': 'from-emerald-400 to-cyan-600',
-    'Bushing CT': 'from-yellow-400 to-amber-600',
-    'INSULATOR': 'from-rose-400 to-red-600',
-    'KE VCB Bushing': 'from-purple-400 to-indigo-600',
-    'LTCT ITR-WLT': 'from-pink-400 to-rose-600',
-    'EARTHING SWITCH': 'from-orange-400 to-yellow-600'
-  };
-
-  const color = productColors[product.name] || 'from-cyan-400 to-blue-600';
-
-  return (
-    <div 
-      className="product-card group glass-cyan rounded-2xl p-5 border border-cyan-500/20 hover:border-cyan-400/50 transition-all duration-500 hover:-translate-y-2 hover:scale-[1.02]"
-      style={{ animationDelay: `${index * 0.08}s` }}
-    >
-      {/* Animated Border Glow */}
-      <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-cyan-500/10 via-transparent to-blue-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-      
-      {/* Holographic Scan Line */}
-      <div className="absolute inset-0 rounded-2xl overflow-hidden">
-        <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-cyan-400/50 to-transparent animate-scan"></div>
-      </div>
-
-      {/* Product Icon / Holographic Model */}
-      <div className="flex justify-center mb-3">
-        <div className="holographic-model relative">
-          <div className={`cube ${color}`}>
-            <div className="cube-inner"></div>
-          </div>
-          <div className="absolute -inset-4 bg-cyan-500/5 rounded-full blur-2xl group-hover:bg-cyan-500/10 transition-all"></div>
-          <div className="absolute -top-1 -right-1 w-2 h-2 bg-cyan-400 rounded-full animate-pulse shadow-[0_0_10px_cyan]"></div>
-          <div className="absolute -bottom-1 -left-1 w-2 h-2 bg-blue-400 rounded-full animate-pulse shadow-[0_0_10px_blue]"></div>
-        </div>
-      </div>
-
-      {/* Product Name */}
-      <h3 className="text-center text-white font-bold text-lg tracking-wider font-['Orbitron'] drop-shadow-[0_0_15px_rgba(0,255,255,0.2)]">
-        {product.name}
-      </h3>
-
-      {/* Plan & Achieved */}
-      <div className="flex justify-between text-sm mt-3 px-2">
-        <div className="text-center">
-          <p className="text-gray-400 text-[10px] uppercase tracking-wider">Plan</p>
-          <p className="text-white font-bold text-lg">{product.plan}</p>
-        </div>
-        <div className="text-center">
-          <p className="text-gray-400 text-[10px] uppercase tracking-wider">Achieved</p>
-          <p className="text-emerald-400 font-bold text-lg animate-pulse">{product.achieved}</p>
-        </div>
-      </div>
-
-      {/* Circular Progress */}
-      <div className="flex justify-center mt-4">
-        <div className="relative w-24 h-24">
-          <svg className="w-24 h-24 progress-ring" viewBox="0 0 100 100">
-            <circle
-              className="bg"
-              cx="50"
-              cy="50"
-              r="35"
-              fill="none"
-              strokeWidth="6"
-            />
-            <circle
-              className="progress"
-              cx="50"
-              cy="50"
-              r="35"
-              fill="none"
-              strokeWidth="6"
-              strokeDasharray={circumference}
-              strokeDashoffset={offset}
-              stroke={`url(#grad-${index})`}
-            />
-            <defs>
-              <linearGradient id={`grad-${index}`} x1="0%" y1="0%" x2="100%" y2="0%">
-                <stop offset="0%" stopColor="#00ffff" />
-                <stop offset="100%" stopColor="#0066ff" />
-              </linearGradient>
-            </defs>
-          </svg>
-          
-          {/* Center Percentage */}
-          <div className="absolute inset-0 flex items-center justify-center">
-            <span className="text-xl font-bold text-cyan-400 font-['Orbitron'] drop-shadow-[0_0_20px_rgba(0,255,255,0.3)]">
-              {progress}%
-            </span>
-          </div>
-          
-          {/* Glow Effect */}
-          <div className="absolute -inset-4 bg-cyan-500/5 rounded-full blur-xl animate-pulse"></div>
-        </div>
-      </div>
-
-      {/* Status Indicator */}
-      <div className="flex justify-center mt-2">
-        {product.achieved >= product.plan && product.plan > 0 ? (
-          <span className="text-xs text-emerald-400 flex items-center gap-1">
-            <CheckCircle size={14} /> Complete
-          </span>
-        ) : product.plan === 0 ? (
-          <span className="text-xs text-gray-500 flex items-center gap-1">
-            <AlertCircle size={14} /> No Target
-          </span>
-        ) : (
-          <span className="text-xs text-cyan-400 flex items-center gap-1 animate-pulse">
-            <Activity size={14} /> In Progress
-          </span>
-        )}
-      </div>
-    </div>
-  );
-}
-
-// ===== MAIN DASHBOARD =====
 export default function DashboardPage({ user, username }) {
   const [plans, setPlans] = useState([]);
   const [loading, setLoading] = useState(true);
-  
-  // Real-time data from Firebase
+
   useEffect(() => {
     const unsubscribe = onSnapshot(
       collection(db, 'productionPlans'),
@@ -166,9 +32,7 @@ export default function DashboardPage({ user, username }) {
         setPlans(data);
         setLoading(false);
       },
-      (error) => {
-        console.error('Firebase error:', error);
-        // Fallback to mock data if Firebase fails
+      () => {
         setPlans(productionData);
         setLoading(false);
       }
@@ -176,155 +40,147 @@ export default function DashboardPage({ user, username }) {
     return () => unsubscribe();
   }, []);
 
-  // Use real data or fallback
   const displayData = plans.length > 0 ? plans : productionData;
 
   const totalPlan = displayData.reduce((sum, item) => sum + (item.plan || item.targetQuantity || 0), 0);
   const totalAchieved = displayData.reduce((sum, item) => sum + (item.achieved || item.achievedQuantity || 0), 0);
   const avgProgress = totalPlan > 0 ? ((totalAchieved / totalPlan) * 100).toFixed(1) : 0;
 
-  // Floating particles
-  const particles = Array.from({ length: 30 }, (_, i) => ({
-    id: i,
-    left: Math.random() * 100,
-    delay: Math.random() * 10,
-    duration: 15 + Math.random() * 20,
-    size: 2 + Math.random() * 3,
-  }));
-
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
         <div className="text-center">
-          <div className="w-16 h-16 border-4 border-cyan-400 border-t-transparent rounded-full animate-spin mx-auto mb-4 shadow-[0_0_40px_rgba(0,255,255,0.2)]"></div>
-          <p className="text-cyan-400 font-['Orbitron'] text-sm animate-pulse">INITIALIZING HOLOGRAPHIC DISPLAY...</p>
+          <div className="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-gray-400 text-sm">Loading production data...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="relative min-h-screen overflow-hidden">
-      {/* Background */}
-      <div className="dashboard-bg"></div>
-      <div className="scan-lines"></div>
-      
-      {/* Floating Particles */}
-      <div className="particles">
-        {particles.map((p) => (
-          <div
-            key={p.id}
-            className="particle"
-            style={{
-              left: `${p.left}%`,
-              animationDuration: `${p.duration}s`,
-              animationDelay: `${p.delay}s`,
-              width: `${p.size}px`,
-              height: `${p.size}px`,
-            }}
-          />
-        ))}
+    <div className="min-h-screen bg-[#0a0e17] p-4 md:p-6">
+      {/* ===== HEADER ===== */}
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
+        <div>
+          <h1 className="text-2xl md:text-3xl font-bold text-white tracking-tight">
+            Production Dashboard
+          </h1>
+          <p className="text-gray-500 text-sm mt-1">
+            {new Date().toLocaleString('default', { month: 'long', year: 'numeric' })} — Day {new Date().getDate()}
+          </p>
+        </div>
+        <div className="flex items-center gap-4">
+          <span className="flex items-center gap-2 text-xs text-green-400">
+            <span className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></span>
+            LIVE
+          </span>
+          <span className="text-xs text-gray-600">|</span>
+          <span className="text-xs text-gray-500">Last updated: {new Date().toLocaleTimeString()}</span>
+        </div>
       </div>
 
-      {/* Holographic Grid Overlay */}
-      <div className="fixed inset-0 holographic-grid pointer-events-none z-0"></div>
+      {/* ===== SUMMARY CARDS ===== */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+        <div className="bg-[#111a2e] border border-gray-800 rounded-xl p-5">
+          <div className="flex items-center gap-2 text-gray-500 text-sm">
+            <Target size={16} /> Total Plan
+          </div>
+          <p className="text-2xl font-bold text-white mt-1">{totalPlan.toLocaleString()}</p>
+          <div className="w-full bg-gray-800 rounded-full h-1 mt-2">
+            <div className="bg-blue-500 h-1 rounded-full" style={{ width: '100%' }}></div>
+          </div>
+        </div>
 
-      <div className="relative z-10 p-4 md:p-8 max-w-7xl mx-auto">
-        {/* ===== TOP SUMMARY PANEL ===== */}
-        <div className="glass rounded-3xl p-6 md:p-8 mb-8 border border-cyan-500/30 shadow-[0_0_60px_rgba(0,255,255,0.05)] pulse-glow relative overflow-hidden animate-fadeIn">
-          {/* Animated Border */}
-          <div className="absolute inset-0 rounded-3xl bg-gradient-to-r from-cyan-500/5 via-transparent to-blue-500/5 animate-pulse"></div>
-          
-          {/* Energy Lines */}
-          <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-cyan-400/50 to-transparent animate-energy"></div>
-          <div className="absolute bottom-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-blue-400/30 to-transparent animate-energy-delay"></div>
-          
-          {/* Header */}
-          <div className="text-center relative">
-            <h1 className="text-2xl md:text-4xl lg:text-5xl font-['Orbitron'] font-bold neon-text tracking-wider">
-              WIP PRODUCTION SUMMARY
-            </h1>
-            <p className="text-cyan-400/60 text-sm md:text-base mt-2 font-['Orbitron'] tracking-widest">
-              {new Date().toLocaleString('default', { month: 'long', year: 'numeric' })} — DAY {new Date().getDate()}
-            </p>
-            <div className="flex justify-center gap-6 mt-3 text-xs text-cyan-400/40 font-['Orbitron']">
-              <span className="flex items-center gap-2">
-                <span className="w-2 h-2 bg-green-400 rounded-full animate-ping"></span>
-                ● LIVE
-              </span>
-              <span>|</span>
-              <span className="flex items-center gap-1">
-                <Zap size={14} className="text-cyan-400 animate-pulse" />
-                AUTO-SYNC
-              </span>
-              <span>|</span>
-              <span className="flex items-center gap-1">
-                <Cpu size={14} className="text-cyan-400" />
-                INDUSTRY 4.0
-              </span>
+        <div className="bg-[#111a2e] border border-gray-800 rounded-xl p-5">
+          <div className="flex items-center gap-2 text-gray-500 text-sm">
+            <CheckCircle size={16} /> Total Achieved
+          </div>
+          <p className="text-2xl font-bold text-green-400 mt-1">{totalAchieved.toLocaleString()}</p>
+          <div className="w-full bg-gray-800 rounded-full h-1 mt-2">
+            <div className="bg-green-500 h-1 rounded-full" style={{ width: `${Math.min((totalAchieved/totalPlan)*100, 100)}%` }}></div>
+          </div>
+        </div>
+
+        <div className="bg-[#111a2e] border border-gray-800 rounded-xl p-5">
+          <div className="flex items-center gap-2 text-gray-500 text-sm">
+            <Gauge size={16} /> Progress
+          </div>
+          <div className="flex items-end gap-3 mt-1">
+            <p className="text-2xl font-bold text-blue-400">{avgProgress}%</p>
+            <div className="flex-1 bg-gray-800 rounded-full h-2">
+              <div 
+                className="bg-gradient-to-r from-blue-500 to-cyan-400 h-2 rounded-full transition-all duration-1000"
+                style={{ width: `${Math.min(avgProgress, 100)}%` }}
+              ></div>
             </div>
           </div>
+        </div>
+      </div>
 
-          {/* Summary Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
-            <div className="glass-cyan rounded-2xl p-5 text-center border border-cyan-500/20 hover:border-cyan-400/40 transition-all hover:scale-[1.02]">
-              <div className="flex items-center justify-center gap-2 text-cyan-400/60 text-xs uppercase tracking-wider font-['Orbitron']">
-                <Target size={16} /> Global Plan Qty
-              </div>
-              <p className="text-3xl md:text-4xl font-['Orbitron'] font-bold text-white mt-2 drop-shadow-[0_0_30px_rgba(0,255,255,0.2)]">
-                {totalPlan.toLocaleString()}
-              </p>
-              <div className="w-20 h-1 bg-gradient-to-r from-cyan-400 to-blue-500 rounded-full mx-auto mt-2"></div>
-            </div>
+      {/* ===== PRODUCT GRID ===== */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+        {displayData.map((product) => {
+          const plan = product.plan || product.targetQuantity || 0;
+          const achieved = product.achieved || product.achievedQuantity || 0;
+          const progress = plan > 0 ? ((achieved / plan) * 100).toFixed(1) : 0;
+          const remaining = plan - achieved;
 
-            <div className="glass-cyan rounded-2xl p-5 text-center border border-emerald-500/20 hover:border-emerald-400/40 transition-all hover:scale-[1.02]">
-              <div className="flex items-center justify-center gap-2 text-emerald-400/60 text-xs uppercase tracking-wider font-['Orbitron']">
-                <CheckCircle size={16} /> Total Achieved
+          return (
+            <div key={product.id} className="bg-[#111a2e] border border-gray-800 rounded-xl p-5 hover:border-blue-500/30 transition-all hover:shadow-lg hover:shadow-blue-500/5">
+              {/* Product Name */}
+              <div className="flex items-center justify-between mb-3">
+                <h3 className="text-white font-semibold text-sm">{product.productName || product.name}</h3>
+                <span className="text-xs text-gray-500">{progress}%</span>
               </div>
-              <p className="text-3xl md:text-4xl font-['Orbitron'] font-bold text-emerald-400 mt-2 animate-pulse drop-shadow-[0_0_30px_rgba(52,211,153,0.2)]">
-                {totalAchieved.toLocaleString()}
-              </p>
-              <div className="w-20 h-1 bg-gradient-to-r from-emerald-400 to-cyan-500 rounded-full mx-auto mt-2"></div>
-            </div>
 
-            <div className="glass-cyan rounded-2xl p-5 text-center border border-purple-500/20 hover:border-purple-400/40 transition-all hover:scale-[1.02]">
-              <div className="flex items-center justify-center gap-2 text-purple-400/60 text-xs uppercase tracking-wider font-['Orbitron']">
-                <TrendingUp size={16} /> Average Progress
+              {/* Progress Bar */}
+              <div className="w-full bg-gray-800 rounded-full h-2 mb-3">
+                <div 
+                  className="bg-gradient-to-r from-blue-500 to-cyan-400 h-2 rounded-full transition-all duration-1000"
+                  style={{ width: `${Math.min(progress, 100)}%` }}
+                ></div>
               </div>
-              <div className="flex items-center justify-center gap-3 mt-2">
-                <p className="text-3xl md:text-4xl font-['Orbitron'] font-bold text-purple-400 animate-pulse drop-shadow-[0_0_30px_rgba(168,85,247,0.2)]">
-                  {avgProgress}%
-                </p>
-                <div className="flex-1 max-w-[120px] bg-cyan-950/50 rounded-full h-2 overflow-hidden border border-cyan-500/20">
-                  <div 
-                    className="h-full bg-gradient-to-r from-cyan-400 via-purple-400 to-emerald-400 rounded-full shadow-[0_0_20px_rgba(0,255,255,0.3)] transition-all duration-1000"
-                    style={{ width: `${Math.min(avgProgress, 100)}%` }}
-                  ></div>
+
+              {/* Stats */}
+              <div className="flex justify-between text-sm">
+                <div>
+                  <p className="text-gray-500 text-xs">Plan</p>
+                  <p className="text-white font-medium">{plan}</p>
+                </div>
+                <div className="text-center">
+                  <p className="text-gray-500 text-xs">Achieved</p>
+                  <p className="text-green-400 font-medium">{achieved}</p>
+                </div>
+                <div className="text-right">
+                  <p className="text-gray-500 text-xs">Remaining</p>
+                  <p className="text-yellow-400 font-medium">{remaining > 0 ? remaining : 0}</p>
                 </div>
               </div>
-              <div className="w-20 h-1 bg-gradient-to-r from-purple-400 to-cyan-500 rounded-full mx-auto mt-2"></div>
+
+              {/* Status Badge */}
+              <div className="mt-3 pt-3 border-t border-gray-800 flex items-center justify-between">
+                {achieved >= plan && plan > 0 ? (
+                  <span className="text-xs text-green-400 flex items-center gap-1">
+                    <CheckCircle size={12} /> Complete
+                  </span>
+                ) : plan === 0 ? (
+                  <span className="text-xs text-gray-500">No Target</span>
+                ) : (
+                  <span className="text-xs text-blue-400 flex items-center gap-1">
+                    <Activity size={12} /> In Progress
+                  </span>
+                )}
+                <span className="text-xs text-gray-600">ID: {product.id?.slice(0, 4) || 'N/A'}</span>
+              </div>
             </div>
-          </div>
-        </div>
+          );
+        })}
+      </div>
 
-        {/* ===== PRODUCT GRID ===== */}
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-          {displayData.map((product, index) => {
-            // Map Firebase field names to component props
-            const item = {
-              name: product.productName || product.name,
-              plan: product.targetQuantity || product.plan || 0,
-              achieved: product.achievedQuantity || product.achieved || 0,
-            };
-            return <ProductionCard key={product.id || index} product={item} index={index} />;
-          })}
-        </div>
-
-        {/* ===== FOOTER ===== */}
-        <div className="mt-8 text-center text-[10px] text-cyan-400/20 font-['Orbitron'] tracking-[0.3em]">
-          <p>◈ HOLOGRAPHIC PRODUCTION MONITOR v2.0 ◈</p>
-          <p className="mt-1">SIEMENS · TESLA · INDUSTRY 4.0</p>
-        </div>
+      {/* ===== FOOTER ===== */}
+      <div className="mt-6 pt-4 border-t border-gray-800 flex justify-between text-xs text-gray-600">
+        <span>Production Dashboard v2.0</span>
+        <span>Industry 4.0 • Real-time Monitoring</span>
       </div>
     </div>
   );
