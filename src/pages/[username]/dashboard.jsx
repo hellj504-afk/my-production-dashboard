@@ -189,15 +189,17 @@ export default function DashboardPage({ user, username }) {
             <span className="w-2 h-2 bg-cyan-400 rounded-full animate-pulse"></span>
             📢 LIVE NOTES
           </h2>
-          <button
-            onClick={() => setShowNoteInput(!showNoteInput)}
-            className="bg-cyan-400/20 hover:bg-cyan-400/30 text-cyan-400 px-3 py-1 rounded-lg text-sm flex items-center gap-1 transition-all"
-          >
-            <Plus size={16} /> Add Note
-          </button>
+          {user?.permissions?.createLiveNote && (
+            <button
+              onClick={() => setShowNoteInput(!showNoteInput)}
+              className="bg-cyan-400/20 hover:bg-cyan-400/30 text-cyan-400 px-3 py-1 rounded-lg text-sm flex items-center gap-1 transition-all"
+            >
+              <Plus size={16} /> Add Note
+            </button>
+          )}
         </div>
 
-        {showNoteInput && (
+        {showNoteInput && user?.permissions?.createLiveNote && (
           <div className="flex gap-2 mb-3">
             <input
               type="text"
@@ -234,7 +236,7 @@ export default function DashboardPage({ user, username }) {
                     {new Date(note.createdAt).toLocaleTimeString()}
                   </span>
                 </div>
-                {(user.role === 'super_admin' || note.author === username) && (
+                {(user?.role === 'super_admin' || note.author === username) && (
                   <button
                     onClick={() => deleteNote(note.id)}
                     className="text-gray-500 hover:text-rose-400 transition-colors"
@@ -248,96 +250,104 @@ export default function DashboardPage({ user, username }) {
         </div>
       </div>
 
-      {/* Products Section */}
-      <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-4 shadow-lg shadow-cyan-500/10">
-        <div className="flex items-center justify-between">
-          <h2 className="text-sm font-semibold text-emerald-400 flex items-center gap-2">
-            <Package size={18} />
-            PRODUCTS
-            <span className="text-gray-500 text-xs ml-2">({plans.length})</span>
-          </h2>
-          <button
-            onClick={() => setShowAddProduct(!showAddProduct)}
-            className="bg-emerald-400/20 hover:bg-emerald-400/30 text-emerald-400 px-3 py-1 rounded-lg text-sm flex items-center gap-1 transition-all"
-          >
-            <Plus size={16} /> Add Product
-          </button>
-        </div>
-
-        {showAddProduct && (
-          <div className="flex flex-wrap gap-3 mt-3">
-            <input
-              type="text"
-              placeholder="Product name"
-              value={newProduct.productName}
-              onChange={(e) => setNewProduct({ ...newProduct, productName: e.target.value })}
-              className="flex-1 bg-white/10 border border-white/10 rounded-lg px-4 py-2 text-white text-sm focus:outline-none focus:border-emerald-400/50"
-            />
-            <input
-              type="number"
-              placeholder="Target"
-              value={newProduct.targetQuantity}
-              onChange={(e) => setNewProduct({ ...newProduct, targetQuantity: e.target.value })}
-              className="w-24 bg-white/10 border border-white/10 rounded-lg px-4 py-2 text-white text-sm focus:outline-none focus:border-emerald-400/50"
-            />
-            <button
-              onClick={addProduct}
-              className="bg-emerald-400 hover:bg-emerald-500 px-4 py-2 rounded-lg text-black font-medium text-sm transition-all"
-            >
-              Add
-            </button>
-            <button
-              onClick={() => setShowAddProduct(false)}
-              className="bg-white/10 hover:bg-white/20 px-4 py-2 rounded-lg text-gray-400 text-sm transition-all"
-            >
-              Cancel
-            </button>
+      {/* Products Section - Sirf Admin/Planner ko dikhe */}
+      {(user?.permissions?.viewPlans || user?.role === 'super_admin') && (
+        <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-4 shadow-lg shadow-cyan-500/10">
+          <div className="flex items-center justify-between">
+            <h2 className="text-sm font-semibold text-emerald-400 flex items-center gap-2">
+              <Package size={18} />
+              PRODUCTS
+              <span className="text-gray-500 text-xs ml-2">({plans.length})</span>
+            </h2>
+            {user?.permissions?.createPlan && (
+              <button
+                onClick={() => setShowAddProduct(!showAddProduct)}
+                className="bg-emerald-400/20 hover:bg-emerald-400/30 text-emerald-400 px-3 py-1 rounded-lg text-sm flex items-center gap-1 transition-all"
+              >
+                <Plus size={16} /> Add Product
+              </button>
+            )}
           </div>
-        )}
 
-        <div className="flex flex-wrap gap-2 mt-3">
-          {plans.map((product) => (
-            <div
-              key={product.id}
-              className="flex items-center gap-1 bg-white/5 border border-white/10 rounded-full px-3 py-1 text-sm text-gray-300 hover:border-cyan-400/30 transition-all group"
-            >
-              {editingProduct && editingProduct.id === product.id ? (
-                <div className="flex items-center gap-2">
-                  <input
-                    type="text"
-                    value={editingProduct.productName}
-                    onChange={(e) => setEditingProduct({ ...editingProduct, productName: e.target.value })}
-                    className="bg-white/10 border border-white/10 rounded px-2 py-0.5 text-white text-sm w-24 focus:outline-none focus:border-emerald-400/50"
-                  />
-                  <input
-                    type="number"
-                    value={editingProduct.targetQuantity}
-                    onChange={(e) => setEditingProduct({ ...editingProduct, targetQuantity: e.target.value })}
-                    className="bg-white/10 border border-white/10 rounded px-2 py-0.5 text-white text-sm w-16 focus:outline-none focus:border-emerald-400/50"
-                  />
-                  <button onClick={saveEdit} className="text-emerald-400 hover:text-emerald-300">
-                    <Check size={16} />
-                  </button>
-                  <button onClick={() => setEditingProduct(null)} className="text-gray-500 hover:text-rose-400">
-                    <X size={16} />
-                  </button>
-                </div>
-              ) : (
-                <>
-                  <span>{product.productName}</span>
-                  <span className="text-gray-500 text-xs">({product.targetQuantity})</span>
-                  <button onClick={() => startEdit(product)} className="text-gray-500 hover:text-cyan-400 transition-all ml-1 opacity-0 group-hover:opacity-100">
-                    <Edit2 size={14} />
-                  </button>
-                  <button onClick={() => deleteProduct(product.id, product.productName)} className="text-gray-500 hover:text-rose-400 transition-all opacity-0 group-hover:opacity-100">
-                    <X size={14} />
-                  </button>
-                </>
-              )}
+          {showAddProduct && user?.permissions?.createPlan && (
+            <div className="flex flex-wrap gap-3 mt-3">
+              <input
+                type="text"
+                placeholder="Product name"
+                value={newProduct.productName}
+                onChange={(e) => setNewProduct({ ...newProduct, productName: e.target.value })}
+                className="flex-1 bg-white/10 border border-white/10 rounded-lg px-4 py-2 text-white text-sm focus:outline-none focus:border-emerald-400/50"
+              />
+              <input
+                type="number"
+                placeholder="Target"
+                value={newProduct.targetQuantity}
+                onChange={(e) => setNewProduct({ ...newProduct, targetQuantity: e.target.value })}
+                className="w-24 bg-white/10 border border-white/10 rounded-lg px-4 py-2 text-white text-sm focus:outline-none focus:border-emerald-400/50"
+              />
+              <button
+                onClick={addProduct}
+                className="bg-emerald-400 hover:bg-emerald-500 px-4 py-2 rounded-lg text-black font-medium text-sm transition-all"
+              >
+                Add
+              </button>
+              <button
+                onClick={() => setShowAddProduct(false)}
+                className="bg-white/10 hover:bg-white/20 px-4 py-2 rounded-lg text-gray-400 text-sm transition-all"
+              >
+                Cancel
+              </button>
             </div>
-          ))}
+          )}
+
+          <div className="flex flex-wrap gap-2 mt-3">
+            {plans.map((product) => (
+              <div
+                key={product.id}
+                className="flex items-center gap-1 bg-white/5 border border-white/10 rounded-full px-3 py-1 text-sm text-gray-300 hover:border-cyan-400/30 transition-all group"
+              >
+                {editingProduct && editingProduct.id === product.id && user?.permissions?.editPlan ? (
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="text"
+                      value={editingProduct.productName}
+                      onChange={(e) => setEditingProduct({ ...editingProduct, productName: e.target.value })}
+                      className="bg-white/10 border border-white/10 rounded px-2 py-0.5 text-white text-sm w-24 focus:outline-none focus:border-emerald-400/50"
+                    />
+                    <input
+                      type="number"
+                      value={editingProduct.targetQuantity}
+                      onChange={(e) => setEditingProduct({ ...editingProduct, targetQuantity: e.target.value })}
+                      className="bg-white/10 border border-white/10 rounded px-2 py-0.5 text-white text-sm w-16 focus:outline-none focus:border-emerald-400/50"
+                    />
+                    <button onClick={saveEdit} className="text-emerald-400 hover:text-emerald-300">
+                      <Check size={16} />
+                    </button>
+                    <button onClick={() => setEditingProduct(null)} className="text-gray-500 hover:text-rose-400">
+                      <X size={16} />
+                    </button>
+                  </div>
+                ) : (
+                  <>
+                    <span>{product.productName}</span>
+                    <span className="text-gray-500 text-xs">({product.targetQuantity})</span>
+                    {user?.permissions?.editPlan && (
+                      <button onClick={() => startEdit(product)} className="text-gray-500 hover:text-cyan-400 transition-all ml-1 opacity-0 group-hover:opacity-100">
+                        <Edit2 size={14} />
+                      </button>
+                    )}
+                    {user?.permissions?.deletePlan && (
+                      <button onClick={() => deleteProduct(product.id, product.productName)} className="text-gray-500 hover:text-rose-400 transition-all opacity-0 group-hover:opacity-100">
+                        <X size={14} />
+                      </button>
+                    )}
+                  </>
+                )}
+              </div>
+            ))}
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Summary Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
@@ -371,44 +381,4 @@ export default function DashboardPage({ user, username }) {
             <div key={product.id} className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-4 shadow-lg shadow-cyan-500/5 hover:shadow-cyan-500/20 transition-all duration-300 hover:scale-105">
               <h3 className="text-lg font-semibold text-white tracking-wide text-center">{product.productName}</h3>
               
-              <div className="relative w-full h-48 bg-white/5 rounded-lg mt-3 overflow-hidden border border-white/5">
-                <div className="absolute top-0 left-0 right-0 border-t-2 border-dashed border-white/20 z-10"></div>
-                
-                <div 
-                  className={`absolute bottom-0 left-0 right-0 bg-gradient-to-t ${color} transition-all duration-1000 rounded-t-lg shadow-lg shadow-cyan-500/20 overflow-hidden`}
-                  style={{ height: `${Math.min(towerHeight, 100)}%` }}
-                >
-                  <div className="absolute inset-0 bg-gradient-to-t from-transparent to-white/10 animate-[wave_2s_ease-in-out_infinite]"></div>
-                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent animate-[wave_3s_ease-in-out_infinite]"></div>
-                  <div className="absolute top-0 left-0 right-0 h-1 bg-white/30 rounded-full animate-pulse"></div>
-                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent animate-[shimmer_2s_infinite]"></div>
-                </div>
-                
-                <div 
-                  className={`absolute bottom-0 left-0 right-0 bg-gradient-to-t ${color} blur-xl opacity-30 transition-all duration-1000`}
-                  style={{ height: `${Math.min(towerHeight, 100)}%` }}
-                ></div>
-                
-                <div className="absolute inset-0 flex items-center justify-center flex-col z-10">
-                  <span className="text-2xl font-bold text-white drop-shadow-lg animate-pulse">{progress}%</span>
-                  <span className="text-xs text-gray-400">{product.achievedQuantity || 0} / {product.targetQuantity}</span>
-                </div>
-              </div>
-              
-              <div className="flex justify-between text-xs text-gray-400 mt-2 px-1">
-                <span className="flex items-center gap-1">
-                  <span className="w-2 h-2 bg-cyan-400 rounded-full animate-pulse"></span>
-                  🎯 {product.targetQuantity}
-                </span>
-                <span className="text-emerald-400 flex items-center gap-1">
-                  <span className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></span>
-                  ✅ {product.achievedQuantity || 0}
-                </span>
-              </div>
-            </div>
-          );
-        })}
-      </div>
-    </div>
-  );
-}
+              <div
