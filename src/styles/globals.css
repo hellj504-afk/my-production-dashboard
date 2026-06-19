@@ -1,6 +1,4 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Inter:wght@300;400;600;700&display=swap');
 
 * {
   margin: 0;
@@ -8,110 +6,313 @@
   box-sizing: border-box;
 }
 
-body {
-  background: #0a0a1a;
-  color: #ffffff;
-  font-family: 'Inter', sans-serif;
+:root {
+  --cyan: #00ffff;
+  --cyan-dark: #0088cc;
+  --cyan-glow: rgba(0, 255, 255, 0.3);
+  --blue-neon: #0066ff;
+  --glass-bg: rgba(0, 20, 40, 0.4);
+  --glass-border: rgba(0, 255, 255, 0.2);
+  --shadow-cyan: 0 0 40px rgba(0, 255, 255, 0.1);
+  --font-display: 'Orbitron', monospace;
+  --font-body: 'Inter', sans-serif;
 }
 
-/* ===== NEON GLASS EFFECTS ===== */
-.glass {
-  background: rgba(255, 255, 255, 0.05);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+body {
+  background: #050a1a;
+  color: #ffffff;
+  font-family: var(--font-body);
+  overflow-x: hidden;
+  min-height: 100vh;
+}
+
+/* ===== ANIMATED BACKGROUND ===== */
+.dashboard-bg {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: 
+    radial-gradient(ellipse at 20% 50%, rgba(0, 100, 255, 0.08) 0%, transparent 60%),
+    radial-gradient(ellipse at 80% 50%, rgba(0, 255, 255, 0.05) 0%, transparent 60%),
+    linear-gradient(180deg, #050a1a 0%, #0a1a2e 50%, #050a1a 100%);
+  z-index: -2;
+}
+
+/* ===== SCAN LINES ===== */
+.scan-lines {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0, 255, 255, 0.02) 2px,
+    rgba(0, 255, 255, 0.02) 4px
+  );
+  pointer-events: none;
+  z-index: -1;
+  animation: scanMove 8s linear infinite;
+}
+
+@keyframes scanMove {
+  0% { transform: translateY(0); }
+  100% { transform: translateY(100%); }
+}
+
+/* ===== FLOATING PARTICLES ===== */
+.particles {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  pointer-events: none;
+  z-index: -1;
+  overflow: hidden;
+}
+
+.particle {
+  position: absolute;
+  width: 3px;
+  height: 3px;
+  background: var(--cyan);
+  border-radius: 50%;
+  box-shadow: 0 0 10px var(--cyan-glow);
+  animation: floatParticle linear infinite;
+  opacity: 0.3;
+}
+
+@keyframes floatParticle {
+  0% { transform: translateY(100vh) translateX(0); opacity: 0; }
+  10% { opacity: 0.5; }
+  90% { opacity: 0.5; }
+  100% { transform: translateY(-10vh) translateX(100px); opacity: 0; }
 }
 
 /* ===== SCROLLBAR ===== */
 ::-webkit-scrollbar {
-  width: 6px;
+  width: 4px;
 }
 ::-webkit-scrollbar-track {
-  background: rgba(255, 255, 255, 0.05);
+  background: rgba(0, 255, 255, 0.05);
 }
 ::-webkit-scrollbar-thumb {
-  background: linear-gradient(to bottom, #22d3ee, #a855f7);
+  background: var(--cyan);
   border-radius: 10px;
+  box-shadow: 0 0 20px var(--cyan-glow);
 }
 
-/* ===== WATER WAVE ANIMATIONS ===== */
-@keyframes wave {
-  0% {
-    transform: translateX(-100%) translateY(0%);
-  }
-  50% {
-    transform: translateX(0%) translateY(-5%);
-  }
-  100% {
-    transform: translateX(100%) translateY(0%);
-  }
+/* ===== GLASSMORPHISM ===== */
+.glass {
+  background: var(--glass-bg);
+  backdrop-filter: blur(16px) saturate(1.2);
+  -webkit-backdrop-filter: blur(16px) saturate(1.2);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--shadow-cyan), inset 0 0 60px rgba(0, 255, 255, 0.03);
 }
 
-@keyframes wave2 {
-  0% {
-    transform: translateX(-50%) translateY(0%) scaleY(0.5);
-  }
-  50% {
-    transform: translateX(0%) translateY(-10%) scaleY(1);
-  }
-  100% {
-    transform: translateX(50%) translateY(0%) scaleY(0.5);
-  }
+.glass-cyan {
+  background: rgba(0, 255, 255, 0.05);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(0, 255, 255, 0.15);
+  box-shadow: 0 0 40px rgba(0, 255, 255, 0.05), inset 0 0 60px rgba(0, 255, 255, 0.02);
 }
 
-@keyframes shimmer {
-  0% {
-    transform: translateX(-100%);
-  }
-  100% {
-    transform: translateX(100%);
-  }
+/* ===== NEON TEXT ===== */
+.neon-text {
+  font-family: var(--font-display);
+  background: linear-gradient(135deg, #00ffff 0%, #0066ff 50%, #00ffff 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow: 0 0 40px rgba(0, 255, 255, 0.2);
+}
+
+.neon-glow {
+  text-shadow: 0 0 20px var(--cyan-glow), 0 0 60px rgba(0, 255, 255, 0.1);
+}
+
+/* ===== ANIMATED BORDER ===== */
+.animated-border {
+  position: relative;
+  overflow: hidden;
+}
+
+.animated-border::before {
+  content: '';
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  right: -2px;
+  bottom: -2px;
+  background: conic-gradient(
+    from 0deg,
+    transparent,
+    var(--cyan),
+    transparent,
+    var(--blue-neon),
+    transparent
+  );
+  border-radius: inherit;
+  z-index: -1;
+  animation: borderSpin 4s linear infinite;
+}
+
+@keyframes borderSpin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* ===== HOLOGRAPHIC SCAN ===== */
+.holographic-scan {
+  position: relative;
+  overflow: hidden;
+}
+
+.holographic-scan::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--cyan), transparent);
+  animation: holographicScan 3s ease-in-out infinite;
+  opacity: 0.5;
+}
+
+@keyframes holographicScan {
+  0% { top: 0; opacity: 0; }
+  50% { opacity: 0.8; }
+  100% { top: 100%; opacity: 0; }
 }
 
 /* ===== PULSE GLOW ===== */
 @keyframes pulseGlow {
-  0%, 100% {
-    box-shadow: 0 0 20px rgba(34, 211, 238, 0.2);
-  }
-  50% {
-    box-shadow: 0 0 40px rgba(34, 211, 238, 0.6);
-  }
+  0%, 100% { box-shadow: 0 0 20px rgba(0, 255, 255, 0.1), 0 0 60px rgba(0, 255, 255, 0.05); }
+  50% { box-shadow: 0 0 40px rgba(0, 255, 255, 0.25), 0 0 80px rgba(0, 255, 255, 0.1); }
 }
 
 .pulse-glow {
-  animation: pulseGlow 2s ease-in-out infinite;
+  animation: pulseGlow 3s ease-in-out infinite;
 }
 
-/* ===== 3D PERSPECTIVE ===== */
-.perspective-1000 {
-  perspective: 1000px;
+/* ===== PROGRESS RING ===== */
+.progress-ring {
+  transform: rotate(-90deg);
 }
 
-.transform-style-3d {
+.progress-ring .bg {
+  stroke: rgba(255, 255, 255, 0.05);
+}
+
+.progress-ring .progress {
+  stroke: var(--cyan);
+  stroke-linecap: round;
+  transition: stroke-dashoffset 1.5s ease-in-out;
+  filter: drop-shadow(0 0 8px var(--cyan-glow));
+}
+
+/* ===== CARD HOVER ===== */
+.product-card {
+  transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  cursor: pointer;
+}
+
+.product-card:hover {
+  transform: translateY(-8px) scale(1.02);
+  box-shadow: 0 0 60px rgba(0, 255, 255, 0.15), 0 0 120px rgba(0, 255, 255, 0.05);
+  border-color: rgba(0, 255, 255, 0.4);
+}
+
+.product-card:hover .holographic-model {
+  filter: drop-shadow(0 0 30px rgba(0, 255, 255, 0.3));
+}
+
+/* ===== 3D HOLOGRAPHIC MODEL ===== */
+.holographic-model {
+  width: 60px;
+  height: 60px;
+  margin: 0 auto;
+  position: relative;
+  transition: all 0.6s ease;
+}
+
+.holographic-model .cube {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, rgba(0, 255, 255, 0.1), rgba(0, 100, 255, 0.05));
+  border: 1px solid rgba(0, 255, 255, 0.2);
+  border-radius: 4px;
+  animation: cubeRotate 6s linear infinite;
   transform-style: preserve-3d;
+  box-shadow: inset 0 0 30px rgba(0, 255, 255, 0.05);
 }
 
-/* ===== TAILWIND CUSTOM UTILITIES ===== */
-@layer utilities {
-  .animate-wave {
-    animation: wave 3s ease-in-out infinite;
+@keyframes cubeRotate {
+  0% { transform: rotateX(0) rotateY(0); }
+  100% { transform: rotateX(360deg) rotateY(360deg); }
+}
+
+.holographic-model .cube-inner {
+  position: absolute;
+  top: 15%;
+  left: 15%;
+  right: 15%;
+  bottom: 15%;
+  background: rgba(0, 255, 255, 0.05);
+  border: 1px solid rgba(0, 255, 255, 0.1);
+  border-radius: 2px;
+  animation: innerPulse 2s ease-in-out infinite;
+}
+
+@keyframes innerPulse {
+  0%, 100% { opacity: 0.3; transform: scale(0.9); }
+  50% { opacity: 0.8; transform: scale(1.1); }
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 768px) {
+  .dashboard-grid {
+    grid-template-columns: 1fr !important;
   }
-  .animate-wave2 {
-    animation: wave2 4s ease-in-out infinite;
+  .product-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
   }
-  .animate-shimmer {
-    animation: shimmer 2s infinite;
+  .summary-cards {
+    grid-template-columns: 1fr !important;
   }
 }
 
-/* ===== NEON BLUE PRINT GLOW ===== */
-.neon-blueprint {
-  box-shadow: 0 0 30px rgba(34, 211, 238, 0.1),
-              inset 0 0 30px rgba(34, 211, 238, 0.05);
+@media (max-width: 480px) {
+  .product-grid {
+    grid-template-columns: 1fr !important;
+  }
 }
 
-/* ===== 3D TOWER SHADOW ===== */
-.tower-shadow {
-  box-shadow: 0 0 40px rgba(34, 211, 238, 0.1),
-              inset 0 -20px 30px rgba(34, 211, 238, 0.05);
+/* ===== FLOATING ENERGY EFFECT ===== */
+.energy-line {
+  position: absolute;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--cyan), transparent);
+  opacity: 0.2;
+  animation: energyLine 4s ease-in-out infinite;
+}
+
+@keyframes energyLine {
+  0% { transform: translateX(-100%) scaleX(0); opacity: 0; }
+  50% { opacity: 0.3; }
+  100% { transform: translateX(100%) scaleX(1); opacity: 0; }
+}
+
+/* ===== HOLOGRAPHIC GRID ===== */
+.holographic-grid {
+  background-image: 
+    linear-gradient(rgba(0, 255, 255, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 255, 255, 0.03) 1px, transparent 1px);
+  background-size: 40px 40px;
 }
