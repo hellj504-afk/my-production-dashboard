@@ -35,7 +35,7 @@ export const USER_CONFIG = {
     }
   },
 
-  // 👀 GUEST - Default Viewer
+  // 👀 GUEST - Default Viewer (Sab dikhe, kuch na ho)
   guest: {
     id: "guest",
     username: "guest",
@@ -45,28 +45,28 @@ export const USER_CONFIG = {
     accessLink: "https://my-production-dashboard.vercel.app/guest/dashboard",
     permissions: {
       viewDashboard: true,
-      viewPlans: false,
-      createPlan: false,
-      editPlan: false,
-      deletePlan: false,
-      viewDailyProduction: false,
-      createDailyProduction: false,
-      editDailyProduction: false,
-      deleteDailyProduction: false,
-      viewShortages: false,
-      createShortage: false,
-      editShortage: false,
-      deleteShortage: false,
-      resolveShortage: false,
-      viewPriorities: false,
-      createPriority: false,
-      editPriority: false,
-      deletePriority: false,
-      viewLiveNotes: false,
-      createLiveNote: false,
-      editLiveNote: false,
-      deleteLiveNote: false,
-      manageUsers: false,
+      viewPlans: true,              // ✅ Plans dikhe
+      createPlan: false,            // ❌ Add na ho
+      editPlan: false,              // ❌ Edit na ho
+      deletePlan: false,            // ❌ Delete na ho
+      viewDailyProduction: true,    // ✅ Daily dikhe
+      createDailyProduction: false, // ❌ Add na ho
+      editDailyProduction: false,   // ❌ Edit na ho
+      deleteDailyProduction: false, // ❌ Delete na ho
+      viewShortages: true,          // ✅ Shortages dikhe
+      createShortage: false,        // ❌ Add na ho
+      editShortage: false,          // ❌ Edit na ho
+      deleteShortage: false,        // ❌ Delete na ho
+      resolveShortage: false,       // ❌ Resolve na ho
+      viewPriorities: true,         // ✅ Priorities dikhe
+      createPriority: false,        // ❌ Add na ho
+      editPriority: false,          // ❌ Edit na ho
+      deletePriority: false,        // ❌ Delete na ho
+      viewLiveNotes: true,          // ✅ Notes dikhe
+      createLiveNote: false,        // ❌ Add na ho
+      editLiveNote: false,          // ❌ Edit na ho
+      deleteLiveNote: false,        // ❌ Delete na ho
+      manageUsers: false,           // ❌ Users page na dikhe
       viewAuditLog: false,
     }
   }
