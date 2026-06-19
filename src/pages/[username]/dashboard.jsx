@@ -250,7 +250,7 @@ export default function DashboardPage({ user, username }) {
         </div>
       </div>
 
-      {/* Products Section - Sirf Admin/Planner ko dikhe */}
+      {/* Products Section */}
       {(user?.permissions?.viewPlans || user?.role === 'super_admin') && (
         <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-4 shadow-lg shadow-cyan-500/10">
           <div className="flex items-center justify-between">
@@ -370,50 +370,67 @@ export default function DashboardPage({ user, username }) {
         </div>
       </div>
 
-      {/* Tower Progress Bars */}
+      {/* ===== 2 TOWER BARS (Plan + Achieved) ===== */}
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
         {plans.map((product) => {
           const progress = product.targetQuantity > 0 ? ((product.achievedQuantity / product.targetQuantity) * 100).toFixed(1) : 0;
           const color = productColors[product.productName] || 'from-gray-400 to-gray-600';
           const towerHeight = Math.min(progress, 100);
+          const planHeight = 100; // Full height for plan
 
           return (
             <div key={product.id} className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-4 shadow-lg shadow-cyan-500/5 hover:shadow-cyan-500/20 transition-all duration-300 hover:scale-105">
               <h3 className="text-lg font-semibold text-white tracking-wide text-center">{product.productName}</h3>
               
-              <div className="relative w-full h-48 bg-white/5 rounded-lg mt-3 overflow-hidden border border-white/5">
-                <div className="absolute top-0 left-0 right-0 border-t-2 border-dashed border-white/20 z-10"></div>
-                
-                <div 
-                  className={`absolute bottom-0 left-0 right-0 bg-gradient-to-t ${color} transition-all duration-1000 rounded-t-lg shadow-lg shadow-cyan-500/20 overflow-hidden`}
-                  style={{ height: `${Math.min(towerHeight, 100)}%` }}
-                >
-                  <div className="absolute inset-0 bg-gradient-to-t from-transparent to-white/10 animate-[wave_2s_ease-in-out_infinite]"></div>
-                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent animate-[wave_3s_ease-in-out_infinite]"></div>
-                  <div className="absolute top-0 left-0 right-0 h-1 bg-white/30 rounded-full animate-pulse"></div>
-                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent animate-[shimmer_2s_infinite]"></div>
+              {/* 2 Towers Side by Side */}
+              <div className="flex gap-2 mt-3 h-48">
+                {/* Tower 1: Plan (Target) */}
+                <div className="flex-1 relative bg-white/5 rounded-lg overflow-hidden border border-white/5">
+                  <div className="absolute inset-0 flex items-center justify-center flex-col z-10">
+                    <span className="text-xs font-bold text-white drop-shadow-lg">{product.targetQuantity}</span>
+                  </div>
+                  {/* Neon Glow - Plan */}
+                  <div 
+                    className={`absolute bottom-0 left-0 right-0 bg-gradient-to-t ${color} blur-xl opacity-40 transition-all duration-1000`}
+                    style={{ height: `${planHeight}%` }}
+                  ></div>
+                  {/* Plan Tower */}
+                  <div 
+                    className={`absolute bottom-0 left-0 right-0 bg-gradient-to-t ${color} transition-all duration-1000 rounded-t-lg shadow-lg shadow-cyan-500/20`}
+                    style={{ height: `${planHeight}%` }}
+                  >
+                    <div className="absolute inset-0 bg-gradient-to-t from-transparent to-white/10 animate-[wave_2s_ease-in-out_infinite]"></div>
+                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent animate-[wave_3s_ease-in-out_infinite]"></div>
+                    <div className="absolute top-0 left-0 right-0 h-1 bg-white/30 rounded-full animate-pulse"></div>
+                  </div>
                 </div>
-                
-                <div 
-                  className={`absolute bottom-0 left-0 right-0 bg-gradient-to-t ${color} blur-xl opacity-30 transition-all duration-1000`}
-                  style={{ height: `${Math.min(towerHeight, 100)}%` }}
-                ></div>
-                
-                <div className="absolute inset-0 flex items-center justify-center flex-col z-10">
-                  <span className="text-2xl font-bold text-white drop-shadow-lg animate-pulse">{progress}%</span>
-                  <span className="text-xs text-gray-400">{product.achievedQuantity || 0} / {product.targetQuantity}</span>
+
+                {/* Tower 2: Achieved */}
+                <div className="flex-1 relative bg-white/5 rounded-lg overflow-hidden border border-white/5">
+                  <div className="absolute inset-0 flex items-center justify-center flex-col z-10">
+                    <span className="text-xs font-bold text-emerald-400 drop-shadow-lg">{product.achievedQuantity || 0}</span>
+                  </div>
+                  {/* Neon Glow - Achieved */}
+                  <div 
+                    className={`absolute bottom-0 left-0 right-0 bg-gradient-to-t ${color} blur-xl opacity-40 transition-all duration-1000`}
+                    style={{ height: `${Math.min(towerHeight, 100)}%` }}
+                  ></div>
+                  {/* Achieved Tower */}
+                  <div 
+                    className={`absolute bottom-0 left-0 right-0 bg-gradient-to-t ${color} transition-all duration-1000 rounded-t-lg shadow-lg shadow-cyan-500/20`}
+                    style={{ height: `${Math.min(towerHeight, 100)}%` }}
+                  >
+                    <div className="absolute inset-0 bg-gradient-to-t from-transparent to-white/10 animate-[wave_2s_ease-in-out_infinite]"></div>
+                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent animate-[wave_3s_ease-in-out_infinite]"></div>
+                    <div className="absolute top-0 left-0 right-0 h-1 bg-white/30 rounded-full animate-pulse"></div>
+                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent animate-[shimmer_2s_infinite]"></div>
+                  </div>
                 </div>
               </div>
-              
-              <div className="flex justify-between text-xs text-gray-400 mt-2 px-1">
-                <span className="flex items-center gap-1">
-                  <span className="w-2 h-2 bg-cyan-400 rounded-full animate-pulse"></span>
-                  🎯 {product.targetQuantity}
-                </span>
-                <span className="text-emerald-400 flex items-center gap-1">
-                  <span className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></span>
-                  ✅ {product.achievedQuantity || 0}
-                </span>
+
+              {/* Progress Label */}
+              <div className="text-center mt-2">
+                <span className="text-xs font-bold text-cyan-400 animate-pulse">{progress}%</span>
               </div>
             </div>
           );
