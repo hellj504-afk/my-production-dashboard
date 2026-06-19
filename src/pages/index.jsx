@@ -5,6 +5,7 @@ export default function Home() {
   const router = useRouter();
 
   useEffect(() => {
+    // ✅ Default: Guest (Viewer) dashboard
     router.replace('/guest/dashboard');
   }, [router]);
 
@@ -12,7 +13,7 @@ export default function Home() {
     <div className="min-h-screen flex items-center justify-center bg-primary">
       <div className="text-center">
         <div className="w-16 h-16 border-4 border-cyan-400 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-        <p className="text-white text-lg">Redirecting to Guest Dashboard...</p>
+        <p className="text-white text-lg">Redirecting to Viewer Dashboard...</p>
       </div>
     </div>
   );
