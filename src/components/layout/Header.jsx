@@ -15,7 +15,6 @@ export default function Header({ user, username }) {
   const router = useRouter();
   const currentPath = router.pathname;
 
-  // ✅ Navigation items with permissions
   const navItems = [
     { name: 'Dashboard', path: `/${username}/dashboard`, icon: LayoutDashboard, permission: 'viewDashboard' },
     { name: 'Daily', path: `/${username}/daily`, icon: CalendarCheck, permission: 'viewDailyProduction' },
@@ -27,15 +26,13 @@ export default function Header({ user, username }) {
 
   // ✅ Sirf woh items dikhayein jin ki permission user ko hai
   const visibleItems = navItems.filter(item => {
-    // Agar user admin hai toh sab dikhayein
     if (user?.role === 'super_admin') return true;
-    // Warna permission check karein
     return user?.permissions?.[item.permission] === true;
   });
 
-  // ✅ Logout (back to user selection)
+  // ✅ Logout: Guest dashboard par jaye
   const handleLogout = () => {
-    router.push('/select-user');
+    router.push('/guest/dashboard');
   };
 
   return (
@@ -75,7 +72,7 @@ export default function Header({ user, username }) {
         })}
       </nav>
 
-      {/* User Info */}
+      {/* User Info + Logout */}
       <div className="flex items-center gap-4">
         <div className="flex items-center gap-3">
           <div className="text-right hidden sm:block">
@@ -85,10 +82,11 @@ export default function Header({ user, username }) {
           <div className="w-10 h-10 rounded-full bg-gradient-to-r from-cyan-400 to-purple-500 flex items-center justify-center shadow-lg shadow-cyan-500/20">
             <User size={20} className="text-white" />
           </div>
+          {/* ✅ Logout Button - Guest par jaye */}
           <button
             onClick={handleLogout}
             className="text-gray-400 hover:text-white transition-colors ml-2"
-            title="Switch User"
+            title="Logout"
           >
             <LogOut size={18} />
           </button>
