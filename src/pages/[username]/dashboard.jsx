@@ -141,6 +141,16 @@ export default function DashboardPage({ user, username }) {
   const totalAchieved = plans.reduce((sum, item) => sum + (item.achievedQuantity || 0), 0);
   const avgProgress = totalPlan > 0 ? ((totalAchieved / totalPlan) * 100).toFixed(1) : 0;
 
+  const productColors = {
+    'HT CT': 'from-cyan-400 to-blue-600',
+    'PT': 'from-emerald-400 to-cyan-600',
+    'Bushing CT': 'from-yellow-400 to-amber-600',
+    'INSULATOR': 'from-rose-400 to-red-600',
+    'KE VCB Bushing': 'from-purple-400 to-indigo-600',
+    'LTCT ITR-WLT': 'from-pink-400 to-rose-600',
+    'EARTHING SWITCH': 'from-orange-400 to-yellow-600'
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -151,16 +161,6 @@ export default function DashboardPage({ user, username }) {
       </div>
     );
   }
-
-  const productColors = {
-    'HT CT': 'from-cyan-400 to-blue-600',
-    'PT': 'from-emerald-400 to-cyan-600',
-    'Bushing CT': 'from-yellow-400 to-amber-600',
-    'INSULATOR': 'from-rose-400 to-red-600',
-    'KE VCB Bushing': 'from-purple-400 to-indigo-600',
-    'LTCT ITR-WLT': 'from-pink-400 to-rose-600',
-    'EARTHING SWITCH': 'from-orange-400 to-yellow-600'
-  };
 
   return (
     <div className="space-y-6">
@@ -370,7 +370,7 @@ export default function DashboardPage({ user, username }) {
         </div>
       </div>
 
-      {/* 2 Towers - Simple Version */}
+      {/* 2 Towers */}
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
         {plans.map((product) => {
           const progress = product.targetQuantity > 0 ? ((product.achievedQuantity / product.targetQuantity) * 100).toFixed(1) : 0;
