@@ -1,21 +1,88 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  background: #0a0a1a;
+  color: #ffffff;
+  font-family: 'Inter', sans-serif;
+}
+
+/* ===== NEON GLASS EFFECTS ===== */
+.glass {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+/* ===== SCROLLBAR ===== */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.05);
+}
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(to bottom, #22d3ee, #a855f7);
+  border-radius: 10px;
+}
+
+/* ===== WATER WAVE ANIMATIONS ===== */
 @keyframes wave {
-  0% { transform: translateX(-100%) translateY(0%); }
-  50% { transform: translateX(0%) translateY(-5%); }
-  100% { transform: translateX(100%) translateY(0%); }
+  0% {
+    transform: translateX(-100%) translateY(0%);
+  }
+  50% {
+    transform: translateX(0%) translateY(-5%);
+  }
+  100% {
+    transform: translateX(100%) translateY(0%);
+  }
 }
 
 @keyframes wave2 {
-  0% { transform: translateX(-50%) translateY(0%) scaleY(0.5); }
-  50% { transform: translateX(0%) translateY(-10%) scaleY(1); }
-  100% { transform: translateX(50%) translateY(0%) scaleY(0.5); }
+  0% {
+    transform: translateX(-50%) translateY(0%) scaleY(0.5);
+  }
+  50% {
+    transform: translateX(0%) translateY(-10%) scaleY(1);
+  }
+  100% {
+    transform: translateX(50%) translateY(0%) scaleY(0.5);
+  }
 }
 
 @keyframes shimmer {
-  0% { transform: translateX(-100%); }
-  100% { transform: translateX(100%); }
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
 }
 
-/* 3D Perspective */
+/* ===== PULSE GLOW ===== */
+@keyframes pulseGlow {
+  0%, 100% {
+    box-shadow: 0 0 20px rgba(34, 211, 238, 0.2);
+  }
+  50% {
+    box-shadow: 0 0 40px rgba(34, 211, 238, 0.6);
+  }
+}
+
+.pulse-glow {
+  animation: pulseGlow 2s ease-in-out infinite;
+}
+
+/* ===== 3D PERSPECTIVE ===== */
 .perspective-1000 {
   perspective: 1000px;
 }
@@ -24,8 +91,27 @@
   transform-style: preserve-3d;
 }
 
-/* Neon Blue Print Glow */
+/* ===== TAILWIND CUSTOM UTILITIES ===== */
+@layer utilities {
+  .animate-wave {
+    animation: wave 3s ease-in-out infinite;
+  }
+  .animate-wave2 {
+    animation: wave2 4s ease-in-out infinite;
+  }
+  .animate-shimmer {
+    animation: shimmer 2s infinite;
+  }
+}
+
+/* ===== NEON BLUE PRINT GLOW ===== */
 .neon-blueprint {
   box-shadow: 0 0 30px rgba(34, 211, 238, 0.1),
               inset 0 0 30px rgba(34, 211, 238, 0.05);
+}
+
+/* ===== 3D TOWER SHADOW ===== */
+.tower-shadow {
+  box-shadow: 0 0 40px rgba(34, 211, 238, 0.1),
+              inset 0 -20px 30px rgba(34, 211, 238, 0.05);
 }
